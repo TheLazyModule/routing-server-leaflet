@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"routing/dijkstra"
 	rg "routing/graph"
 )
 
@@ -39,7 +40,8 @@ func main() {
 		newGraph.AddEdge(edge.fromNode, edge.toNode, edge.weight)
 	}
 
-	fmt.Println(newGraph.GetWeights())
-	fmt.Println(newGraph.GetEdges())
+	//fmt.Println(newGraph.GetWeights())
+	//fmt.Println(newGraph.GetEdges())
+	fmt.Println(dijkstra.Dijkstra(newGraph, "X", "Y"))
 
 }
