@@ -7,6 +7,10 @@ import (
 )
 
 func main() {
+	//_, err := utils.LoadConfig(".")
+	//if err != nil {
+	//	log.Fatal("Cannot Load configurations")
+	//}
 	//var newGraph = dk.Graph[int]{}
 	var newGraph = rg.NewGraph()
 
