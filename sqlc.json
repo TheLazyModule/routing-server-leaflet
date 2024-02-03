@@ -1,0 +1,41 @@
+{
+  "version": "2",
+  "cloud": {
+    "project": "01HHF7RP08VV5JKJT73QB12Y91"
+  },
+  "sql": [
+    {
+      "engine": "postgresql",
+      "queries": "db/query",
+      "schema": "db/schema.sql",
+      "database": {
+        "managed": true
+      },
+      "gen": {
+        "go": {
+          "package": "db",
+          "out": "db/sqlc",
+          "sql_package": "pgx/v5",
+          "overrides": [
+            {
+              "db_type": "geometry",
+              "go_type": "github.com/twpayne/go-geom.MultiPolygon"
+            },
+            {
+              "db_type": "geometry",
+              "go_type": "github.com/twpayne/go-geom.MultiPolygon",
+              "null": true
+            },
+            {
+              "db_type": "geometry(Point)",
+              "go_type": "github.com/twpayne/go-geom.Point",
+              "null": true
+            }
+          ],
+          "emit_json_tags": true,
+          "emit_empty_slices": true
+        }
+      }
+    }
+  ]
+}
