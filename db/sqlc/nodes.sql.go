@@ -13,7 +13,7 @@ import (
 )
 
 const getNodeAndEdges = `-- name: GetNodeAndEdges :one
-select nodes.id, name, point_geom, edges.id, node_id, edges
+select nodes.id, name, point_geom, edges.id, node_id, neighbors
 from nodes
          join edges
               on nodes.id = edges.node_id
@@ -26,7 +26,7 @@ type GetNodeAndEdgesRow struct {
 	PointGeom geom.Point    `json:"point_geom"`
 	ID_2      int64         `json:"id_2"`
 	NodeID    int64         `json:"node_id"`
-	Edges     dto.EdgesData `json:"edges"`
+	Neighbors dto.EdgesData `json:"neighbors"`
 }
 
 func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdgesRow, error) {
@@ -38,7 +38,7 @@ func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdge
 		&i.PointGeom,
 		&i.ID_2,
 		&i.NodeID,
-		&i.Edges,
+		&i.Neighbors,
 	)
 	return i, err
 }

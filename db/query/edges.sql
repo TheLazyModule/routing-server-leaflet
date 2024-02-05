@@ -1,5 +1,5 @@
 -- name: ListEdges :many
-SELECT *
+SELECT node_id, neighbors
 FROM edges;
 
 -- name: GetEdges :one

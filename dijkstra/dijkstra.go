@@ -3,7 +3,7 @@ package dijkstra
 import (
 	"fmt"
 	"math"
-	rg "routing/graph" // Assuming graph package provides GetEdges and GetWeights methods
+	rg "routing/graph"
 )
 
 type PreviousNodeAndWeight struct {

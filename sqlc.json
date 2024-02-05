@@ -24,7 +24,7 @@
               "nullable": true
             },
             {
-              "column": "edges.edges",
+              "column": "edges.neighbors",
               "go_type": {
                 "import": "routing/db/dto",
                 "package": "dto",

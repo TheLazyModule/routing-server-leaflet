@@ -10,9 +10,9 @@ import (
 )
 
 type Edge struct {
-	ID     int64         `json:"id"`
-	NodeID int64         `json:"node_id"`
-	Edges  dto.EdgesData `json:"edges"`
+	ID        int64         `json:"id"`
+	NodeID    int64         `json:"node_id"`
+	Neighbors dto.EdgesData `json:"neighbors"`
 }
 
 type Node struct {

@@ -7,10 +7,12 @@ package db
 
 import (
 	"context"
+
+	dto "routing/db/dto"
 )
 
 const getEdges = `-- name: GetEdges :one
-SELECT id, node_id, edges
+SELECT id, node_id, neighbors
 FROM edges
 where node_id = $1
 `
@@ -18,25 +20,30 @@ where node_id = $1
 func (q *Queries) GetEdges(ctx context.Context, nodeID int64) (Edge, error) {
 	row := q.db.QueryRow(ctx, getEdges, nodeID)
 	var i Edge
-	err := row.Scan(&i.ID, &i.NodeID, &i.Edges)
+	err := row.Scan(&i.ID, &i.NodeID, &i.Neighbors)
 	return i, err
 }
 
 const listEdges = `-- name: ListEdges :many
-SELECT id, node_id, edges
+SELECT node_id, neighbors
 FROM edges
 `
 
-func (q *Queries) ListEdges(ctx context.Context) ([]Edge, error) {
+type ListEdgesRow struct {
+	NodeID    int64         `json:"node_id"`
+	Neighbors dto.EdgesData `json:"neighbors"`
+}
+
+func (q *Queries) ListEdges(ctx context.Context) ([]ListEdgesRow, error) {
 	rows, err := q.db.Query(ctx, listEdges)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Edge{}
+	items := []ListEdgesRow{}
 	for rows.Next() {
-		var i Edge
-		if err := rows.Scan(&i.ID, &i.NodeID, &i.Edges); err != nil {
+		var i ListEdgesRow
+		if err := rows.Scan(&i.NodeID, &i.Neighbors); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

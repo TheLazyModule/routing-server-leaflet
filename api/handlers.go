@@ -1,9 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	db "routing/db/sqlc"
 )
 
 func (s *Server) GetNodes(ctx *gin.Context) {
@@ -42,19 +42,18 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 		return
 	}
 
-	_, err := s.store.GetNodeAndEdges(ctx, req.ToNodeID)
+	//_, err := s.store.GetNodeAndEdges(ctx, req.ToNodeID)
 	//_, err := s.store.GetNodeAndEdges(ctx, req.FromNodeID)
-
-	arg := db.GetWeightParams{
-		FromNodeID: req.FromNodeID,
-		ToNodeID:   req.ToNodeID,
+	//nodes, err := s.store.ListNodes(ctx)
+	edges, err := s.store.ListEdges(ctx)
+	//weights, err := s.store.ListWeights(ctx)
+	for _, e := range edges {
+		fmt.Println(e)
 	}
-
-	weight, err := s.store.GetWeight(ctx, arg)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, weight)
+	ctx.JSON(http.StatusOK, gin.H{})
 }
