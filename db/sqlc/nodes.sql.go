@@ -7,7 +7,41 @@ package db
 
 import (
 	"context"
+
+	"github.com/twpayne/go-geom"
+	dto "routing/db/dto"
 )
+
+const getNodeAndEdges = `-- name: GetNodeAndEdges :one
+select nodes.id, name, point_geom, edges.id, node_id, edges
+from nodes
+         join edges
+              on nodes.id = edges.node_id
+where nodes.id = $1
+`
+
+type GetNodeAndEdgesRow struct {
+	ID        int64         `json:"id"`
+	Name      string        `json:"name"`
+	PointGeom geom.Point    `json:"point_geom"`
+	ID_2      int64         `json:"id_2"`
+	NodeID    int64         `json:"node_id"`
+	Edges     dto.EdgesData `json:"edges"`
+}
+
+func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdgesRow, error) {
+	row := q.db.QueryRow(ctx, getNodeAndEdges, id)
+	var i GetNodeAndEdgesRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.PointGeom,
+		&i.ID_2,
+		&i.NodeID,
+		&i.Edges,
+	)
+	return i, err
+}
 
 const listNodes = `-- name: ListNodes :many
 SELECT name, ST_ASTEXT(point_geom) as point_geom

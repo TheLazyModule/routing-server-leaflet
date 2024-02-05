@@ -6,11 +6,6 @@ import (
 	db "routing/db/sqlc"
 )
 
-type getWeightRequest struct {
-	FromNodeID int64 `json:"from_node_id" binding:"required"`
-	ToNodeID   int64 `json:"to_node_id"`
-}
-
 func (s *Server) GetNodes(ctx *gin.Context) {
 	nodes, err := s.store.ListNodes(ctx)
 	if err != nil {
@@ -41,7 +36,7 @@ func (s *Server) GetWeights(ctx *gin.Context) {
 }
 
 func (s *Server) GetShortestRoute(ctx *gin.Context) {
-	var req getWeightRequest
+	var req routeRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -60,4 +55,3 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, weight)
 }
-
