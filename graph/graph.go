@@ -11,7 +11,7 @@ edges is a map of all possible next nodes
 	e.g. {[ 'X', 'A' ]: 7, [ 'X', 'B' ]: 2, ...}
 */
 
-type NodePair [2]string
+type NodePair [2]int64
 
 type Node struct {
 	label string
@@ -19,7 +19,7 @@ type Node struct {
 }
 
 type Graph struct {
-	edges   map[string][]string
+	edges   map[int64][]int64
 	weights map[NodePair]float64
 }
 
@@ -27,9 +27,9 @@ func NewGraph() *Graph {
 	return &Graph{}
 }
 
-func (g *Graph) AddEdge(fromNode, toNode string, weight float64) {
+func (g *Graph) AddEdge(fromNode, toNode int64, weight float64) {
 	if g.edges == nil {
-		g.edges = make(map[string][]string)
+		g.edges = make(map[int64][]int64)
 	}
 	if g.weights == nil {
 		g.weights = make(map[NodePair]float64)
@@ -39,7 +39,7 @@ func (g *Graph) AddEdge(fromNode, toNode string, weight float64) {
 	g.weights[NodePair{fromNode, toNode}] = weight
 }
 
-func (g *Graph) GetEdges() map[string][]string {
+func (g *Graph) GetEdges() map[int64][]int64 {
 	return g.edges
 }
 

@@ -7,18 +7,18 @@ import (
 )
 
 type PreviousNodeAndWeight struct {
-	prevNode string
+	prevNode int64 // Adjusted to int64 to match node IDs
 	weight   float64
 }
 
-// Dijkstra finds the shortest path from initial to end node and returns the path.
-func Dijkstra(graph *rg.Graph, initial, end string) ([]string, error) {
-	shortestPaths := make(map[string]PreviousNodeAndWeight)
-	shortestPaths[initial] = PreviousNodeAndWeight{prevNode: "", weight: 0}
-	visited := make(map[string]bool)
+// Dijkstra finds the shortest path from initial to end node and returns the path as node IDs.
+func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, error) {
+	shortestPaths := make(map[int64]PreviousNodeAndWeight)
+	shortestPaths[initial] = PreviousNodeAndWeight{prevNode: -1, weight: 0} // Use -1 to indicate no previous node
+	visited := make(map[int64]bool)
 	currentNode := initial
 
-	for currentNode != "" {
+	for currentNode != -1 {
 		if currentNode == end {
 			break
 		}
@@ -33,7 +33,7 @@ func Dijkstra(graph *rg.Graph, initial, end string) ([]string, error) {
 			}
 		}
 
-		currentNode = ""
+		currentNode = -1
 		minWeight := math.Inf(1)
 		for node, pw := range shortestPaths {
 			if !visited[node] && pw.weight < minWeight {
@@ -41,15 +41,16 @@ func Dijkstra(graph *rg.Graph, initial, end string) ([]string, error) {
 				currentNode = node
 			}
 		}
-		if currentNode == "" {
-			return nil, fmt.Errorf("route not possible")
-		}
+	}
+
+	if shortestPaths[end].prevNode == -1 {
+		return nil, fmt.Errorf("route not possible")
 	}
 
 	// Reconstruct path
-	var path []string
-	for curr := end; curr != ""; curr = shortestPaths[curr].prevNode {
-		path = append([]string{curr}, path...)
+	var path []int64
+	for curr := end; curr != -1; curr = shortestPaths[curr].prevNode {
+		path = append([]int64{curr}, path...)
 	}
 
 	return path, nil
