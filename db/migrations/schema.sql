@@ -1,8 +1,11 @@
+CREATE
+EXTENSION IF NOT EXISTS postgis;
+
 CREATE TABLE "nodes"
 (
     "id"         bigserial PRIMARY KEY,
-    "name"       varchar UNIQUE        NOT NULL,
-    "point_geom" geometry(point, 3857) NOT NULL
+    "name"       varchar UNIQUE NOT NULL,
+    "point_geom" geometry(Point, 3857) NOT NULL
 );
 
 CREATE TABLE "edges"
@@ -14,8 +17,8 @@ CREATE TABLE "edges"
 
 CREATE TABLE "weights"
 (
-    "from_node_id" bigint NOT NULL,
-    "to_node_id"   bigint NOT NULL,
+    "from_node_id" bigint           NOT NULL,
+    "to_node_id"   bigint           NOT NULL,
     "distance"     double precision NOT NULL,
     PRIMARY KEY ("from_node_id", "to_node_id")
 );

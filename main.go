@@ -1,17 +1,44 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"log"
+	"os"
+	"routing/api"
+	db "routing/db/sqlc"
 	"routing/dijkstra"
 	rg "routing/graph"
+	"routing/utils"
 )
 
 func main() {
-	//_, err := utils.LoadConfig(".")
-	//if err != nil {
-	//	log.Fatal("Cannot Load configurations")
-	//}
-	//var newGraph = dk.Graph[int]{}
+	config, err := utils.LoadConfig(".")
+	if err != nil {
+		log.Fatal("Cannot Load configurations")
+	}
+
+	conn, err := pgxpool.New(context.Background(), config.DBSource)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	} else {
+		fmt.Println("Database Connected!")
+	}
+
+	store := db.NewStore(conn)
+	server := api.NewServer(store)
+
+	err = server.RunServer(config.ServerAddress)
+	if err != nil {
+		log.Fatal("Cannot RunServer Server")
+	}
+
+}
+
+func Dk() {
+
 	var newGraph = rg.NewGraph()
 
 	type edges struct {
@@ -46,6 +73,8 @@ func main() {
 
 	//fmt.Println(newGraph.GetWeights())
 	//fmt.Println(newGraph.GetEdges())
-	fmt.Println(dijkstra.Dijkstra(newGraph, "X", "Y"))
-
+	path, err := dijkstra.Dijkstra(newGraph, "X", "K")
+	if err == nil {
+		fmt.Println(path)
+	}
 }
