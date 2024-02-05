@@ -36,11 +36,14 @@ func (s *Server) GetWeights(ctx *gin.Context) {
 }
 
 func (s *Server) GetShortestRoute(ctx *gin.Context) {
-	var req routeRequest
+	var req routeRequestByID
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	_, err := s.store.GetNodeAndEdges(ctx, req.ToNodeID)
+	//_, err := s.store.GetNodeAndEdges(ctx, req.FromNodeID)
 
 	arg := db.GetWeightParams{
 		FromNodeID: req.FromNodeID,
