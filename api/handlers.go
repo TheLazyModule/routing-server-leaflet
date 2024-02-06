@@ -123,7 +123,7 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	paths, err := dijkstra.Dijkstra(newGraph, req.FromNodeID, req.ToNodeID)
+	paths, Distance, err := dijkstra.Dijkstra(newGraph, req.FromNodeID, req.ToNodeID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
@@ -133,5 +133,5 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"paths": nodes})
+	ctx.JSON(http.StatusOK, gin.H{"distance": Distance, "paths": nodes})
 }

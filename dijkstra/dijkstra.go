@@ -12,7 +12,7 @@ type PreviousNodeAndWeight struct {
 }
 
 // Dijkstra finds the shortest path from initial to end node and returns the path as node IDs.
-func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, error) {
+func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, float64, error) {
 	shortestPaths := make(map[int64]PreviousNodeAndWeight)
 	shortestPaths[initial] = PreviousNodeAndWeight{prevNode: -1, weight: 0} // Use -1 to indicate no previous node
 	visited := make(map[int64]bool)
@@ -44,7 +44,7 @@ func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, error) {
 	}
 
 	if shortestPaths[end].prevNode == -1 {
-		return nil, fmt.Errorf("route not possible")
+		return nil, 0, fmt.Errorf("route not possible")
 	}
 
 	// Reconstruct path
@@ -53,5 +53,5 @@ func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, error) {
 		path = append([]int64{curr}, path...)
 	}
 
-	return path, nil
+	return path, shortestPaths[end].weight, nil
 }
