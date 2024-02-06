@@ -11,14 +11,14 @@ import (
 	dto "routing/db/dto"
 )
 
-const getEdges = `-- name: GetEdges :one
+const getEdgeByID = `-- name: GetEdgeByID :one
 SELECT id, node_id, neighbors
 FROM edges
 where node_id = $1
 `
 
-func (q *Queries) GetEdges(ctx context.Context, nodeID int64) (Edge, error) {
-	row := q.db.QueryRow(ctx, getEdges, nodeID)
+func (q *Queries) GetEdgeByID(ctx context.Context, nodeID int64) (Edge, error) {
+	row := q.db.QueryRow(ctx, getEdgeByID, nodeID)
 	var i Edge
 	err := row.Scan(&i.ID, &i.NodeID, &i.Neighbors)
 	return i, err

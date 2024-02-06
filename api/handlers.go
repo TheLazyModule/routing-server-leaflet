@@ -17,21 +17,21 @@ func (s *Server) GetNodes(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nodes)
 }
 
-//func (s *Server) GetNode(ctx *gin.Context) {
-//	var req int64
-//
-//	if err := ctx.ShouldBindJSON(&req); err != nil {
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
-//
-//	nodes, err := s.store.GetNodeByID(ctx)
-//	if err != nil {
-//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-//		return
-//	}
-//	ctx.JSON(http.StatusOK, nodes)
-//}
+func (s *Server) GetNodeByID(ctx *gin.Context) {
+	var req int64
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	nodes, err := s.store.GetNodeByID(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, nodes)
+}
 
 func (s *Server) GetEdges(ctx *gin.Context) {
 	edges, err := s.store.ListEdges(ctx)
@@ -43,6 +43,23 @@ func (s *Server) GetEdges(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, edges)
 
 }
+
+func (s *Server) GetEdgeByID(ctx *gin.Context) {
+	var req int64
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	edge, err := s.store.GetEdgeByID(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, edge)
+}
+
 func (s *Server) GetWeights(ctx *gin.Context) {
 	weights, err := s.store.ListWeights(ctx)
 

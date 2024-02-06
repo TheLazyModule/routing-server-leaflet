@@ -2,7 +2,7 @@
 SELECT node_id, neighbors
 FROM edges;
 
--- name: GetEdges :one
+-- name: GetEdgeByID :one
 SELECT *
 FROM edges
 where node_id = $1;
