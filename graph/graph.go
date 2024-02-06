@@ -46,3 +46,13 @@ func (g *Graph) GetEdges() map[int64][]int64 {
 func (g *Graph) GetWeights() map[NodePair]float64 {
 	return g.weights
 }
+
+// AddEdges adds edges from db
+func (g *Graph) AddEdges(nodeId int64, neighbors []int64) {
+
+}
+
+// AddWeights adds weights from db
+func (g *Graph) AddWeights(fromNodeID, toNodeID int64, distance float64) {
+
+}
