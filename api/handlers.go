@@ -1,9 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	g "routing/graph"
+	"routing/utils"
 )
 
 func (s *Server) GetNodes(ctx *gin.Context) {
@@ -42,18 +43,22 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 		return
 	}
 
-	//_, err := s.store.GetNodeAndEdges(ctx, req.ToNodeID)
-	//_, err := s.store.GetNodeAndEdges(ctx, req.FromNodeID)
-	//nodes, err := s.store.ListNodes(ctx)
 	edges, err := s.store.ListEdges(ctx)
-	//weights, err := s.store.ListWeights(ctx)
-	for _, e := range edges {
-		fmt.Println(e)
-	}
+	weights, err := s.store.ListWeights(ctx)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	newGraph := g.NewGraph()
+	err = utils.ReadIntoMemory(newGraph, edges)
+
+	for _, w := range weights {
+		if err = newGraph.AddWeightsFromDB(w.FromNodeID, w.ToNodeID, w.Distance); err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		}
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{})
 }

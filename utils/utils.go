@@ -1,17 +1,37 @@
 package utils
 
-// Checks if a item exists in a slice
-func Contains(slice []string, itemToSearch string) bool {
-	for _, item := range slice {
-		if item == itemToSearch {
-			return true
-		}
-	}
-	return false
-}
+import (
+	"fmt"
+	db "routing/db/sqlc"
+	"routing/graph"
+)
 
-// Checks if a key exists in a map
-func KeyInMap(m map[string]struct{}, key string) bool {
-	_, exists := m[key]
-	return exists
+package utils
+
+import (
+"net/http"
+"routing/db/sqlc"
+"routing/graph"
+)
+
+func ReadIntoMemory(graph *graph.Graph, edges interface{}) error {
+	// Type switch to handle different types
+	switch e := edges.(type) {
+	case []db.ListEdgesRow:
+		for _, edge := range e {
+			if err := graph.AddEdgesFromDB(edge.NodeID, edge.Neighbors); err != nil {
+				return err
+			}
+		}
+	case []db.Weight:
+		for _, weight := range e {
+			if err := graph.AddWeightsFromDB(weight.FromNodeID, weight.ToNodeID, weight.Distance); err != nil {
+				return err
+			}
+		}
+	default:
+		return fmt.Errorf("unsupported type passed to ReadIntoMemory")
+	}
+
+	return nil
 }
