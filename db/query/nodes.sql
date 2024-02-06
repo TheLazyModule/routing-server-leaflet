@@ -17,3 +17,10 @@ FROM nodes
 WHERE id = ANY ($1);
 
 
+-- name: GetNodeByID :one
+SELECT name, ST_ASTEXT(point_geom) as point_geom
+FROM nodes
+WHERE id = $1;
+
+
+

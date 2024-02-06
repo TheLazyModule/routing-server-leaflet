@@ -17,6 +17,22 @@ func (s *Server) GetNodes(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nodes)
 }
 
+//func (s *Server) GetNode(ctx *gin.Context) {
+//	var req int64
+//
+//	if err := ctx.ShouldBindJSON(&req); err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	nodes, err := s.store.GetNodeByID(ctx)
+//	if err != nil {
+//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+//		return
+//	}
+//	ctx.JSON(http.StatusOK, nodes)
+//}
+
 func (s *Server) GetEdges(ctx *gin.Context) {
 	edges, err := s.store.ListEdges(ctx)
 

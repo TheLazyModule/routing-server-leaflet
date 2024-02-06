@@ -43,6 +43,24 @@ func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdge
 	return i, err
 }
 
+const getNodeByID = `-- name: GetNodeByID :one
+SELECT name, ST_ASTEXT(point_geom) as point_geom
+FROM nodes
+WHERE id = $1
+`
+
+type GetNodeByIDRow struct {
+	Name      string      `json:"name"`
+	PointGeom interface{} `json:"point_geom"`
+}
+
+func (q *Queries) GetNodeByID(ctx context.Context, id int64) (GetNodeByIDRow, error) {
+	row := q.db.QueryRow(ctx, getNodeByID, id)
+	var i GetNodeByIDRow
+	err := row.Scan(&i.Name, &i.PointGeom)
+	return i, err
+}
+
 const getNodesByIds = `-- name: GetNodesByIds :many
 SELECT name, ST_ASTEXT(point_geom) as point_geom
 FROM nodes
@@ -54,7 +72,7 @@ type GetNodesByIdsRow struct {
 	PointGeom interface{} `json:"point_geom"`
 }
 
-func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
+func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsRow, error) {
 	rows, err := q.db.Query(ctx, getNodesByIds, id)
 	if err != nil {
 		return nil, err
