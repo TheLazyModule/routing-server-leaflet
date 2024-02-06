@@ -2,16 +2,8 @@ package utils
 
 import (
 	"fmt"
-	db "routing/db/sqlc"
+	"routing/db/sqlc"
 	"routing/graph"
-)
-
-package utils
-
-import (
-"net/http"
-"routing/db/sqlc"
-"routing/graph"
 )
 
 func ReadIntoMemory(graph *graph.Graph, edges interface{}) error {
