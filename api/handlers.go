@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"routing/dijkstra"
 	g "routing/graph"
 	"routing/utils"
 )
@@ -52,13 +53,18 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 	}
 
 	newGraph := g.NewGraph()
-	err = utils.ReadIntoMemory(newGraph, edges)
-
-	for _, w := range weights {
-		if err = newGraph.AddWeightsFromDB(w.FromNodeID, w.ToNodeID, w.Distance); err != nil {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		}
+	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{})
+	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	paths, err := dijkstra.Dijkstra(newGraph, req.FromNodeID, req.ToNodeID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"paths": paths})
 }

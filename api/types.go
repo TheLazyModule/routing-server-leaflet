@@ -11,8 +11,8 @@ type routeRequest struct {
 }
 
 type routeRequestByID struct {
-	FromNodeID int64 `json:"from_node_id" binding:"required"`
-	ToNodeID   int64 `json:"to_node_id"`
+	FromNodeID int64 `json:"from_node_id" binding:"required,min=1"`
+	ToNodeID   int64 `json:"to_node_id" binding:"required,min=1"`
 }
 
 type EdgesData []string
