@@ -45,8 +45,12 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 	}
 
 	edges, err := s.store.ListEdges(ctx)
-	weights, err := s.store.ListWeights(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 
+	weights, err := s.store.ListWeights(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -66,5 +70,10 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"paths": paths})
+	nodes, err := s.store.GetNodesByIds(ctx, paths)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"paths": nodes})
 }

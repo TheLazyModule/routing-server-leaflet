@@ -43,6 +43,37 @@ func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdge
 	return i, err
 }
 
+const getNodesByIds = `-- name: GetNodesByIds :many
+SELECT name, ST_ASTEXT(point_geom) as point_geom
+FROM nodes
+WHERE id = ANY ($1)
+`
+
+type GetNodesByIdsRow struct {
+	Name      string      `json:"name"`
+	PointGeom interface{} `json:"point_geom"`
+}
+
+func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
+	rows, err := q.db.Query(ctx, getNodesByIds, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetNodesByIdsRow{}
+	for rows.Next() {
+		var i GetNodesByIdsRow
+		if err := rows.Scan(&i.Name, &i.PointGeom); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listNodes = `-- name: ListNodes :many
 SELECT name, ST_ASTEXT(point_geom) as point_geom
 FROM nodes
