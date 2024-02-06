@@ -23,4 +23,13 @@ FROM nodes
 WHERE id = $1;
 
 
+-- name: GetNodePointGeom :one
+SELECT  ST_ASTEXT(point_geom) as point_geom
+FROM nodes
+WHERE id = $1;
+
+
+-- name: ListNodePointGeoms :many
+SELECT  ST_ASTEXT(point_geom) as point_geom
+FROM nodes;
 

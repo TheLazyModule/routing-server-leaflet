@@ -17,6 +17,31 @@ func (s *Server) GetNodes(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nodes)
 }
 
+func (s *Server) GetNodePointGeoms(ctx *gin.Context) {
+	nodes, err := s.store.ListNodePointGeoms(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, nodes)
+}
+
+func (s *Server) GetNodePointGeomByID(ctx *gin.Context) {
+	var req int64
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	point, err := s.store.GetNodePointGeom(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, point)
+}
+
 func (s *Server) GetNodeByID(ctx *gin.Context) {
 	var req int64
 

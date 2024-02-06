@@ -61,6 +61,19 @@ func (q *Queries) GetNodeByID(ctx context.Context, id int64) (GetNodeByIDRow, er
 	return i, err
 }
 
+const getNodePointGeom = `-- name: GetNodePointGeom :one
+SELECT  ST_ASTEXT(point_geom) as point_geom
+FROM nodes
+WHERE id = $1
+`
+
+func (q *Queries) GetNodePointGeom(ctx context.Context, id int64) (interface{}, error) {
+	row := q.db.QueryRow(ctx, getNodePointGeom, id)
+	var point_geom interface{}
+	err := row.Scan(&point_geom)
+	return point_geom, err
+}
+
 const getNodesByIds = `-- name: GetNodesByIds :many
 SELECT name, ST_ASTEXT(point_geom) as point_geom
 FROM nodes
@@ -85,6 +98,31 @@ func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesById
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listNodePointGeoms = `-- name: ListNodePointGeoms :many
+SELECT  ST_ASTEXT(point_geom) as point_geom
+FROM nodes
+`
+
+func (q *Queries) ListNodePointGeoms(ctx context.Context) ([]interface{}, error) {
+	rows, err := q.db.Query(ctx, listNodePointGeoms)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []interface{}{}
+	for rows.Next() {
+		var point_geom interface{}
+		if err := rows.Scan(&point_geom); err != nil {
+			return nil, err
+		}
+		items = append(items, point_geom)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
