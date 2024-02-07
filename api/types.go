@@ -10,6 +10,10 @@ type routeRequest struct {
 	ToNode   string `json:"to_node" binding:"required"`
 }
 
+type ReqID struct {
+	ID int64 `uri:"id" binding:"required"`
+}
+
 type routeRequestByID struct {
 	FromNodeID int64 `json:"from_node_id" binding:"required,min=1"`
 	ToNodeID   int64 `json:"to_node_id" binding:"required,min=1"`

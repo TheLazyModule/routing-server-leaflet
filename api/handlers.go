@@ -27,14 +27,14 @@ func (s *Server) GetNodePointGeoms(ctx *gin.Context) {
 }
 
 func (s *Server) GetNodePointGeomByID(ctx *gin.Context) {
-	var req int64
+	var req ReqID
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	point, err := s.store.GetNodePointGeom(ctx, req)
+	point, err := s.store.GetNodePointGeom(ctx, req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -43,14 +43,14 @@ func (s *Server) GetNodePointGeomByID(ctx *gin.Context) {
 }
 
 func (s *Server) GetNodeByID(ctx *gin.Context) {
-	var req int64
+	var req ReqID
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	nodes, err := s.store.GetNodeByID(ctx, req)
+	nodes, err := s.store.GetNodeByID(ctx, req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -70,14 +70,14 @@ func (s *Server) GetEdges(ctx *gin.Context) {
 }
 
 func (s *Server) GetEdgeByID(ctx *gin.Context) {
-	var req int64
+	var req ReqID
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	edge, err := s.store.GetEdgeByID(ctx, req)
+	edge, err := s.store.GetEdgeByID(ctx, req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

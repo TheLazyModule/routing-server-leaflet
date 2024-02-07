@@ -34,7 +34,3 @@ func main() {
 	}
 
 }
-
-func Dk() {
-
-}
