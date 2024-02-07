@@ -2,6 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/public/Leaflet.SidePanel" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/public/js/leaflet-custom-searchbox" vcs="Git" />
   </component>
 </project>
