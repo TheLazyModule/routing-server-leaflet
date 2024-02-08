@@ -1,5 +1,5 @@
 const APIClient = (method, data, resCallback) => $.ajax({
-    url: 'http://localhost:3000/places',
+    url: '/places',
     type: method,
     dataType: 'json',
     success: (data) => {

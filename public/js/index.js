@@ -1,9 +1,11 @@
-// import APIClient from "./apiClient";
-//
-// const api = APIClient('GET', '', result => {
-//
-//     console.log(result.data)
-// })
+import APIClient from "./apiClient";
+
+(function () {
+    const api = APIClient('GET', '', result => {
+
+        console.log(result.data)
+    })
+})
 
 const map = L.map('map', {
     zoomControl: false

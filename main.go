@@ -9,9 +9,11 @@ import (
 	"routing/api"
 	db "routing/db/sqlc"
 	"routing/utils"
+	"runtime"
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	config, err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Cannot Load configurations")
