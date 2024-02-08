@@ -5,9 +5,23 @@
 package db
 
 import (
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/twpayne/go-geom"
 	dto "routing/db/dto"
 )
+
+type Building struct {
+	ID       int64       `json:"id"`
+	Name     pgtype.Text `json:"name"`
+	Geom     geom.Point  `json:"geom"`
+	Centroid geom.Point  `json:"centroid"`
+}
+
+type Classroom struct {
+	ID         int64  `json:"id"`
+	BuildingID int64  `json:"building_id"`
+	Name       string `json:"name"`
+}
 
 type Edge struct {
 	ID        int64         `json:"id"`
@@ -19,6 +33,12 @@ type Node struct {
 	ID        int64      `json:"id"`
 	Name      string     `json:"name"`
 	PointGeom geom.Point `json:"point_geom"`
+}
+
+type Place struct {
+	ID       int64       `json:"id"`
+	Name     pgtype.Text `json:"name"`
+	Location geom.Point  `json:"location"`
 }
 
 type Weight struct {

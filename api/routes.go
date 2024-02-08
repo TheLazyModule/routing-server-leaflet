@@ -1,6 +1,8 @@
 package api
 
 func (s *Server) ServeRoutes() {
+	s.router.GET("/buildings", s.GetBuildings)
+	s.router.GET("/places", s.GetPlaces)
 	s.router.GET("/nodes", s.GetNodes)
 	s.router.GET("/nodes/:id", s.GetNodeByID)
 	s.router.GET("/nodes/geom/:id", s.GetNodePointGeomByID)

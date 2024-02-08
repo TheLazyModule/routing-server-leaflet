@@ -8,6 +8,24 @@ import (
 	"routing/utils"
 )
 
+func (s *Server) GetPlaces(ctx *gin.Context) {
+	nodes, err := s.store.ListPlaces(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, nodes)
+}
+
+func (s *Server) GetBuildings(ctx *gin.Context) {
+	nodes, err := s.store.ListBuildings(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, nodes)
+}
+
 func (s *Server) GetNodes(ctx *gin.Context) {
 	nodes, err := s.store.ListNodes(ctx)
 	if err != nil {
