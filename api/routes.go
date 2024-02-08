@@ -1,6 +1,7 @@
 package api
 
 func (s *Server) ServeRoutes() {
+	s.router.GET("/", s.Map)
 	s.router.GET("/buildings", s.GetBuildings)
 	s.router.GET("/places", s.GetPlaces)
 	s.router.GET("/nodes", s.GetNodes)

@@ -8,6 +8,11 @@ import (
 	"routing/utils"
 )
 
+func (s *Server) Map(ctx *gin.Context) {
+	//ctx.File("public/index.html")
+	ctx.Redirect(http.StatusFound, "/static")
+}
+
 func (s *Server) GetPlaces(ctx *gin.Context) {
 	nodes, err := s.store.ListPlaces(ctx)
 	if err != nil {

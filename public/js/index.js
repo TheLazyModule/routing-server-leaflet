@@ -1,11 +1,5 @@
-import APIClient from "./apiClient";
+import APIClient from "./apiClient.js";
 
-(function () {
-    const api = APIClient('GET', '', result => {
-
-        console.log(result.data)
-    })
-})
 
 const map = L.map('map', {
     zoomControl: false
@@ -32,69 +26,45 @@ L.marker([6.673175, -1.565423], 20).addTo(map)
     .bindTooltip('A pretty CSS3 tooltip.<br> Easily customizable.');
 
 
-document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("searchInputFrom");
-    const dropdownList = document.getElementById("dropdownListFrom");
-    const items = ["Apple", "Banana", "Orange", "Mango", "Grape", "Strawberry"]; // Sample data
+APIClient('GET', result => {
+    // const data = result.data.map(res => res.name)
+    searchFilter("searchInputFrom", "dropdownListFrom", data)
+    searchFilter("searchInputTo", "dropdownListTo", data)
+
+})
+
+const searchFilter = (searchInputID, dropdownListID, data) => {
+    document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById(searchInputID);
+        const dropdownList = document.getElementById(dropdownListID);
 
 
-    searchInput.addEventListener("input", function () {
-        let value = searchInput.value.toLowerCase();
-        dropdownList.innerHTML = ""; // Clear previous results
+        searchInput.addEventListener("input", function () {
+            let value = searchInput.value.toLowerCase();
+            dropdownList.innerHTML = ""; // Clear previous results
 
-        let filteredItems = items.filter(item => item.toLowerCase().includes(value));
+            let filteredData = data.filter(item => item.toLowerCase().includes(value));
 
-        filteredItems.forEach(item => {
-            let li = document.createElement("li");
-            li.classList.add("dropdown-item");
-            li.textContent = item;
-            li.setAttribute("role", "button");
-            dropdownList.appendChild(li);
+            filteredData.forEach(item => {
+                let li = document.createElement("li");
+                li.classList.add("dropdown-item");
+                li.textContent = item;
+                li.setAttribute("role", "button");
+                dropdownList.appendChild(li);
 
-            li.addEventListener("click", function () {
-                searchInput.value = item; // Set input value to the selected item's text
-                let dropdownElement = new bootstrap.Dropdown(searchInput);
-                dropdownElement.hide();
+                li.addEventListener("click", function () {
+                    searchInput.value = item; // Set input value to the selected item's text
+                    let dropdownElement = new bootstrap.Dropdown(searchInput);
+                    dropdownElement.hide();
+                });
             });
+
+            if (value === '' || filteredData.length === 0) {
+                dropdownList.classList.remove("show");
+            } else {
+                dropdownList.classList.add("show");
+            }
         });
-
-        if (value === '' || filteredItems.length === 0) {
-            dropdownList.classList.remove("show");
-        } else {
-            dropdownList.classList.add("show");
-        }
     });
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("searchInputTo");
-    const dropdownList = document.getElementById("dropdownListTo");
-    const items = ["Apple", "Banana", "Orange", "Mango", "Grape", "Strawberry"]; // Sample data
-
-    searchInput.addEventListener("input", function () {
-        let value = searchInput.value.toLowerCase();
-        dropdownList.innerHTML = ""; // Clear previous results
-
-        let filteredItems = items.filter(item => item.toLowerCase().includes(value));
-
-        filteredItems.forEach(item => {
-            let li = document.createElement("li");
-            li.classList.add("dropdown-item");
-            li.textContent = item;
-            li.setAttribute("role", "button");
-            dropdownList.appendChild(li);
-
-            li.addEventListener("click", function () {
-                searchInput.value = item; // Set input value to the selected item's text
-                let dropdownElement = new bootstrap.Dropdown(searchInput);
-                dropdownElement.hide();
-            });
-        });
-
-        if (value === '' || filteredItems.length === 0) {
-            dropdownList.classList.remove("show");
-        } else {
-            dropdownList.classList.add("show");
-        }
-    });
-});
+}
