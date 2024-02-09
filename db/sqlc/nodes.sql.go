@@ -34,7 +34,7 @@ func (q *Queries) GetClosestPointToQueryLocation(ctx context.Context, stGeomfrom
 }
 
 const getNodeAndEdges = `-- name: GetNodeAndEdges :one
-select nodes.id, name, point_geom, edges.id, node_id, neighbors
+select nodes.id, name, point_geom, point_geom_geography, edges.id, node_id, neighbors
 from nodes
          join edges
               on nodes.id = edges.node_id
@@ -42,12 +42,13 @@ where nodes.id = $1
 `
 
 type GetNodeAndEdgesRow struct {
-	ID        int64         `json:"id"`
-	Name      string        `json:"name"`
-	PointGeom geom.Point    `json:"point_geom"`
-	ID_2      int64         `json:"id_2"`
-	NodeID    int64         `json:"node_id"`
-	Neighbors dto.EdgesData `json:"neighbors"`
+	ID                 int64         `json:"id"`
+	Name               string        `json:"name"`
+	PointGeom          geom.Point    `json:"point_geom"`
+	PointGeomGeography interface{}   `json:"point_geom_geography"`
+	ID_2               int64         `json:"id_2"`
+	NodeID             int64         `json:"node_id"`
+	Neighbors          dto.EdgesData `json:"neighbors"`
 }
 
 func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdgesRow, error) {
@@ -57,6 +58,7 @@ func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdge
 		&i.ID,
 		&i.Name,
 		&i.PointGeom,
+		&i.PointGeomGeography,
 		&i.ID_2,
 		&i.NodeID,
 		&i.Neighbors,
@@ -106,7 +108,7 @@ type GetNodesByIdsRow struct {
 	PointGeom interface{} `json:"point_geom"`
 }
 
-func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
+func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsRow, error) {
 	rows, err := q.db.Query(ctx, getNodesByIds, id)
 	if err != nil {
 		return nil, err

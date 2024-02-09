@@ -11,10 +11,12 @@ import (
 )
 
 type Building struct {
-	ID       int64       `json:"id"`
-	Name     pgtype.Text `json:"name"`
-	Geom     geom.Point  `json:"geom"`
-	Centroid geom.Point  `json:"centroid"`
+	ID                int64       `json:"id"`
+	Name              pgtype.Text `json:"name"`
+	Geom              geom.Point  `json:"geom"`
+	GeomGeography     interface{} `json:"geom_geography"`
+	Centroid          geom.Point  `json:"centroid"`
+	CentroidGeography interface{} `json:"centroid_geography"`
 }
 
 type Classroom struct {
@@ -30,15 +32,17 @@ type Edge struct {
 }
 
 type Node struct {
-	ID        int64      `json:"id"`
-	Name      string     `json:"name"`
-	PointGeom geom.Point `json:"point_geom"`
+	ID                 int64       `json:"id"`
+	Name               string      `json:"name"`
+	PointGeom          geom.Point  `json:"point_geom"`
+	PointGeomGeography interface{} `json:"point_geom_geography"`
 }
 
 type Place struct {
-	ID       int64       `json:"id"`
-	Name     pgtype.Text `json:"name"`
-	Location geom.Point  `json:"location"`
+	ID                int64       `json:"id"`
+	Name              pgtype.Text `json:"name"`
+	Location          geom.Point  `json:"location"`
+	LocationGeography interface{} `json:"location_geography"`
 }
 
 type Weight struct {
