@@ -129,7 +129,7 @@ type GetNodesByIdsRow struct {
 	PointGeomGeographic interface{} `json:"point_geom_geographic"`
 }
 
-func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsRow, error) {
+func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
 	rows, err := q.db.Query(ctx, getNodesByIds, id)
 	if err != nil {
 		return nil, err

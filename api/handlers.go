@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/dijkstra"
@@ -140,20 +141,24 @@ func (s *Server) GetShortestRouteByNode(ctx *gin.Context) {
 	newGraph := g.NewGraph()
 	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	paths, Distance, err := dijkstra.Dijkstra(newGraph, req.FromNodeID, req.ToNodeID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	nodes, err := s.store.GetNodesByIds(ctx, paths)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"distance": Distance, "paths": nodes})
@@ -168,13 +173,17 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 	geomFrom, err := s.store.GetPlaceGeom(ctx, req.From)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 	geomTo, err := s.store.GetPlaceGeom(ctx, req.To)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
-	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom)
-	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo)
+	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
+	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
+	fmt.Println(closestNodeTo)
+	fmt.Println(closestNodeFrom)
 
 	edges, err := s.store.ListEdges(ctx)
 	if err != nil {
@@ -191,20 +200,24 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 	newGraph := g.NewGraph()
 	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	paths, Distance, err := dijkstra.Dijkstra(newGraph, closestNodeFrom.ID, closestNodeTo.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	nodes, err := s.store.GetNodesByIds(ctx, paths)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"distance": Distance, "paths": nodes})

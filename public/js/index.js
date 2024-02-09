@@ -20,10 +20,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-L.marker([6.673175, -1.565423], 20).addTo(map)
-    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-    .openPopup()
-    .bindTooltip('A pretty CSS3 tooltip.<br> Easily customizable.');
+// L.marker([6.673175, -1.565423], 20).addTo(map)
+//     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+//     .openPopup()
+//     .bindTooltip('A pretty CSS3 tooltip.<br> Easily customizable.');
 
 
 APIClient('/places', 'GET', '', result => {
@@ -33,6 +33,14 @@ APIClient('/places', 'GET', '', result => {
     searchFilter("searchInputTo", "dropdownListTo", data)
 
 })
+
+// APIClient('/buildings', 'GET', '', result => {
+//     const data = result.map(res => res.name)
+//     console.log(data)
+//     searchFilter("searchInputFrom", "dropdownListFrom", data)
+//     searchFilter("searchInputTo", "dropdownListTo", data)
+//
+// })
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form');
@@ -47,7 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         APIClient('/route', 'POST', data, result => {
-            console.log(result)
+            const data = result.paths.map(res => res.point_geom_geographic)
+            var polylineCoordinates = [];
+
+            data.forEach(function (wktStr) {
+                var wkt = new Wkt.Wkt();
+                wkt.read(wktStr);
+
+                var leafletObj = wkt.toObject();
+                leafletObj.addTo(map); // Adds the marker to the map
+
+                if (leafletObj.getLatLng) {
+                    polylineCoordinates.push(leafletObj.getLatLng());
+                }
+            });
+
+            // var polyline = L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
         })
     });
 })
