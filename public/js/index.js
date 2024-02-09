@@ -20,27 +20,28 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// L.marker([6.673175, -1.565423], 20).addTo(map)
-//     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-//     .openPopup()
-//     .bindTooltip('A pretty CSS3 tooltip.<br> Easily customizable.');
 
-
-APIClient('/places', 'GET', '', result => {
-    const data = result.map(res => res.name)
-    console.log(data)
-    searchFilter("searchInputFrom", "dropdownListFrom", data)
-    searchFilter("searchInputTo", "dropdownListTo", data)
-
-})
-
-// APIClient('/buildings', 'GET', '', result => {
-//     const data = result.map(res => res.name)
+// APIClient('/places', 'GET', '', result => {
+//     let data = result.filter(res => {
+//         return res.name !== null
+//     })
+//     data = data.map(res => res.name)
 //     console.log(data)
 //     searchFilter("searchInputFrom", "dropdownListFrom", data)
 //     searchFilter("searchInputTo", "dropdownListTo", data)
 //
 // })
+
+APIClient('/buildings', 'GET', '', result => {
+    let data = result.filter(res => {
+        return res.name !== null
+    })
+    data = data.map(res => res.name)
+    console.log(data)
+    searchFilter("searchInputFrom", "dropdownListFrom", data)
+    searchFilter("searchInputTo", "dropdownListTo", data)
+
+})
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form');
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         APIClient('/route', 'POST', data, result => {
+            console.log(result)
             const data = result.paths.map(res => res.point_geom_geographic)
             var polylineCoordinates = [];
 
