@@ -1,5 +1,8 @@
 -- name: ListNodes :many
-SELECT name, ST_ASTEXT(point_geom) as point_geom
+SELECT name,
+       ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
+
 FROM nodes
 ORDER BY id;
 
@@ -12,31 +15,40 @@ where nodes.id = $1;
 
 
 -- name: GetNodesByIds :many
-SELECT name, ST_ASTEXT(point_geom) as point_geom
+SELECT name,
+       ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
+
 FROM nodes
 WHERE id = ANY ($1);
 
 
 -- name: GetNodeByID :one
-SELECT name, ST_ASTEXT(point_geom) as point_geom
+SELECT name,
+       ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
 FROM nodes
 WHERE id = $1;
 
 
 -- name: GetNodePointGeom :one
-SELECT ST_ASTEXT(point_geom) as point_geom
+SELECT ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
 FROM nodes
 WHERE id = $1;
 
 
 -- name: ListNodePointGeoms :many
-SELECT ST_ASTEXT(point_geom) as point_geom
+SELECT ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
 FROM nodes;
 
 
 -- name: GetClosestPointToQueryLocation :one
-SELECT id,name,
-       ST_AsText(point_geom) AS closest_geom
+SELECT id,
+       name,
+       ST_AsText(point_geom)           AS closest_geom,
+       ST_AsText(point_geom_geography) AS closest_geom_geographic
 FROM nodes
 ORDER BY point_geom <-> ST_GeomFromText($1, 3857)
 LIMIT 1;

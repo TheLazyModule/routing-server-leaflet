@@ -12,45 +12,52 @@ import (
 )
 
 const getPlace = `-- name: GetPlace :one
-SELECT name, ST_ASTEXT(location) as location
+SELECT name, ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
 from places
 where name = $1
 `
 
 type GetPlaceRow struct {
-	Name     pgtype.Text `json:"name"`
-	Location interface{} `json:"location"`
+	Name               pgtype.Text `json:"name"`
+	Location           interface{} `json:"location"`
+	LocationGeographic interface{} `json:"location_geographic"`
 }
 
 func (q *Queries) GetPlace(ctx context.Context, name pgtype.Text) (GetPlaceRow, error) {
 	row := q.db.QueryRow(ctx, getPlace, name)
 	var i GetPlaceRow
-	err := row.Scan(&i.Name, &i.Location)
+	err := row.Scan(&i.Name, &i.Location, &i.LocationGeographic)
 	return i, err
 }
 
 const getPlaceGeom = `-- name: GetPlaceGeom :one
-SELECT ST_ASTEXT(location) as location
+SELECT ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
 from places
 where name = $1
 `
 
-func (q *Queries) GetPlaceGeom(ctx context.Context, name pgtype.Text) (interface{}, error) {
+type GetPlaceGeomRow struct {
+	Location           interface{} `json:"location"`
+	LocationGeographic interface{} `json:"location_geographic"`
+}
+
+func (q *Queries) GetPlaceGeom(ctx context.Context, name pgtype.Text) (GetPlaceGeomRow, error) {
 	row := q.db.QueryRow(ctx, getPlaceGeom, name)
-	var location interface{}
-	err := row.Scan(&location)
-	return location, err
+	var i GetPlaceGeomRow
+	err := row.Scan(&i.Location, &i.LocationGeographic)
+	return i, err
 }
 
 const listPlaces = `-- name: ListPlaces :many
-SELECT name, ST_ASTEXT(location) as location
+SELECT name, ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
 from places
 order by id
 `
 
 type ListPlacesRow struct {
-	Name     pgtype.Text `json:"name"`
-	Location interface{} `json:"location"`
+	Name               pgtype.Text `json:"name"`
+	Location           interface{} `json:"location"`
+	LocationGeographic interface{} `json:"location_geographic"`
 }
 
 func (q *Queries) ListPlaces(ctx context.Context) ([]ListPlacesRow, error) {
@@ -62,7 +69,7 @@ func (q *Queries) ListPlaces(ctx context.Context) ([]ListPlacesRow, error) {
 	items := []ListPlacesRow{}
 	for rows.Next() {
 		var i ListPlacesRow
-		if err := rows.Scan(&i.Name, &i.Location); err != nil {
+		if err := rows.Scan(&i.Name, &i.Location, &i.LocationGeographic); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

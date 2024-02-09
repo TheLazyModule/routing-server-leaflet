@@ -13,23 +13,31 @@ import (
 )
 
 const getClosestPointToQueryLocation = `-- name: GetClosestPointToQueryLocation :one
-SELECT id,name,
-       ST_AsText(point_geom) AS closest_geom
+SELECT id,
+       name,
+       ST_AsText(point_geom)           AS closest_geom,
+       ST_AsText(point_geom_geography) AS closest_geom_geographic
 FROM nodes
 ORDER BY point_geom <-> ST_GeomFromText($1, 3857)
 LIMIT 1
 `
 
 type GetClosestPointToQueryLocationRow struct {
-	ID          int64       `json:"id"`
-	Name        string      `json:"name"`
-	ClosestGeom interface{} `json:"closest_geom"`
+	ID                    int64       `json:"id"`
+	Name                  string      `json:"name"`
+	ClosestGeom           interface{} `json:"closest_geom"`
+	ClosestGeomGeographic interface{} `json:"closest_geom_geographic"`
 }
 
 func (q *Queries) GetClosestPointToQueryLocation(ctx context.Context, stGeomfromtext interface{}) (GetClosestPointToQueryLocationRow, error) {
 	row := q.db.QueryRow(ctx, getClosestPointToQueryLocation, stGeomfromtext)
 	var i GetClosestPointToQueryLocationRow
-	err := row.Scan(&i.ID, &i.Name, &i.ClosestGeom)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ClosestGeom,
+		&i.ClosestGeomGeographic,
+	)
 	return i, err
 }
 
@@ -67,45 +75,58 @@ func (q *Queries) GetNodeAndEdges(ctx context.Context, id int64) (GetNodeAndEdge
 }
 
 const getNodeByID = `-- name: GetNodeByID :one
-SELECT name, ST_ASTEXT(point_geom) as point_geom
+SELECT name,
+       ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
 FROM nodes
 WHERE id = $1
 `
 
 type GetNodeByIDRow struct {
-	Name      string      `json:"name"`
-	PointGeom interface{} `json:"point_geom"`
+	Name                string      `json:"name"`
+	PointGeom           interface{} `json:"point_geom"`
+	PointGeomGeographic interface{} `json:"point_geom_geographic"`
 }
 
 func (q *Queries) GetNodeByID(ctx context.Context, id int64) (GetNodeByIDRow, error) {
 	row := q.db.QueryRow(ctx, getNodeByID, id)
 	var i GetNodeByIDRow
-	err := row.Scan(&i.Name, &i.PointGeom)
+	err := row.Scan(&i.Name, &i.PointGeom, &i.PointGeomGeographic)
 	return i, err
 }
 
 const getNodePointGeom = `-- name: GetNodePointGeom :one
-SELECT ST_ASTEXT(point_geom) as point_geom
+SELECT ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
 FROM nodes
 WHERE id = $1
 `
 
-func (q *Queries) GetNodePointGeom(ctx context.Context, id int64) (interface{}, error) {
+type GetNodePointGeomRow struct {
+	PointGeom           interface{} `json:"point_geom"`
+	PointGeomGeographic interface{} `json:"point_geom_geographic"`
+}
+
+func (q *Queries) GetNodePointGeom(ctx context.Context, id int64) (GetNodePointGeomRow, error) {
 	row := q.db.QueryRow(ctx, getNodePointGeom, id)
-	var point_geom interface{}
-	err := row.Scan(&point_geom)
-	return point_geom, err
+	var i GetNodePointGeomRow
+	err := row.Scan(&i.PointGeom, &i.PointGeomGeographic)
+	return i, err
 }
 
 const getNodesByIds = `-- name: GetNodesByIds :many
-SELECT name, ST_ASTEXT(point_geom) as point_geom
+SELECT name,
+       ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
+
 FROM nodes
 WHERE id = ANY ($1)
 `
 
 type GetNodesByIdsRow struct {
-	Name      string      `json:"name"`
-	PointGeom interface{} `json:"point_geom"`
+	Name                string      `json:"name"`
+	PointGeom           interface{} `json:"point_geom"`
+	PointGeomGeographic interface{} `json:"point_geom_geographic"`
 }
 
 func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsRow, error) {
@@ -117,7 +138,7 @@ func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsR
 	items := []GetNodesByIdsRow{}
 	for rows.Next() {
 		var i GetNodesByIdsRow
-		if err := rows.Scan(&i.Name, &i.PointGeom); err != nil {
+		if err := rows.Scan(&i.Name, &i.PointGeom, &i.PointGeomGeographic); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -129,23 +150,29 @@ func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsR
 }
 
 const listNodePointGeoms = `-- name: ListNodePointGeoms :many
-SELECT ST_ASTEXT(point_geom) as point_geom
+SELECT ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
 FROM nodes
 `
 
-func (q *Queries) ListNodePointGeoms(ctx context.Context) ([]interface{}, error) {
+type ListNodePointGeomsRow struct {
+	PointGeom           interface{} `json:"point_geom"`
+	PointGeomGeographic interface{} `json:"point_geom_geographic"`
+}
+
+func (q *Queries) ListNodePointGeoms(ctx context.Context) ([]ListNodePointGeomsRow, error) {
 	rows, err := q.db.Query(ctx, listNodePointGeoms)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []interface{}{}
+	items := []ListNodePointGeomsRow{}
 	for rows.Next() {
-		var point_geom interface{}
-		if err := rows.Scan(&point_geom); err != nil {
+		var i ListNodePointGeomsRow
+		if err := rows.Scan(&i.PointGeom, &i.PointGeomGeographic); err != nil {
 			return nil, err
 		}
-		items = append(items, point_geom)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -154,14 +181,18 @@ func (q *Queries) ListNodePointGeoms(ctx context.Context) ([]interface{}, error)
 }
 
 const listNodes = `-- name: ListNodes :many
-SELECT name, ST_ASTEXT(point_geom) as point_geom
+SELECT name,
+       ST_ASTEXT(point_geom)           as point_geom,
+       ST_AsText(point_geom_geography) AS point_geom_geographic
+
 FROM nodes
 ORDER BY id
 `
 
 type ListNodesRow struct {
-	Name      string      `json:"name"`
-	PointGeom interface{} `json:"point_geom"`
+	Name                string      `json:"name"`
+	PointGeom           interface{} `json:"point_geom"`
+	PointGeomGeographic interface{} `json:"point_geom_geographic"`
 }
 
 func (q *Queries) ListNodes(ctx context.Context) ([]ListNodesRow, error) {
@@ -173,7 +204,7 @@ func (q *Queries) ListNodes(ctx context.Context) ([]ListNodesRow, error) {
 	items := []ListNodesRow{}
 	for rows.Next() {
 		var i ListNodesRow
-		if err := rows.Scan(&i.Name, &i.PointGeom); err != nil {
+		if err := rows.Scan(&i.Name, &i.PointGeom, &i.PointGeomGeographic); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

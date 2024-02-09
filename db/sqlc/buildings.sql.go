@@ -12,14 +12,15 @@ import (
 )
 
 const listBuildings = `-- name: ListBuildings :many
-SELECT name, ST_ASTEXT(geom) as geom
+SELECT name, ST_ASTEXT(geom) as geom, ST_ASTEXT(geom_geography) as geom_geographic
 from buildings
 order by id
 `
 
 type ListBuildingsRow struct {
-	Name pgtype.Text `json:"name"`
-	Geom interface{} `json:"geom"`
+	Name           pgtype.Text `json:"name"`
+	Geom           interface{} `json:"geom"`
+	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
 func (q *Queries) ListBuildings(ctx context.Context) ([]ListBuildingsRow, error) {
@@ -31,7 +32,7 @@ func (q *Queries) ListBuildings(ctx context.Context) ([]ListBuildingsRow, error)
 	items := []ListBuildingsRow{}
 	for rows.Next() {
 		var i ListBuildingsRow
-		if err := rows.Scan(&i.Name, &i.Geom); err != nil {
+		if err := rows.Scan(&i.Name, &i.Geom, &i.GeomGeographic); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
