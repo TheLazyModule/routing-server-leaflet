@@ -26,45 +26,59 @@ L.marker([6.673175, -1.565423], 20).addTo(map)
     .bindTooltip('A pretty CSS3 tooltip.<br> Easily customizable.');
 
 
-APIClient('GET', result => {
-    // const data = result.data.map(res => res.name)
+APIClient('/places', 'GET', '', result => {
+    const data = result.map(res => res.name)
+    console.log(data)
     searchFilter("searchInputFrom", "dropdownListFrom", data)
     searchFilter("searchInputTo", "dropdownListTo", data)
 
 })
 
-const searchFilter = (searchInputID, dropdownListID, data) => {
-    document.addEventListener("DOMContentLoaded", () => {
-        const searchInput = document.getElementById(searchInputID);
-        const dropdownList = document.getElementById(dropdownListID);
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('form');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(form);
+        const jsonData = Object.fromEntries(formData.entries());
+        console.log(jsonData)
+        const data = JSON.stringify(jsonData)
 
 
-        searchInput.addEventListener("input", function () {
-            let value = searchInput.value.toLowerCase();
-            dropdownList.innerHTML = ""; // Clear previous results
-
-            let filteredData = data.filter(item => item.toLowerCase().includes(value));
-
-            filteredData.forEach(item => {
-                let li = document.createElement("li");
-                li.classList.add("dropdown-item");
-                li.textContent = item;
-                li.setAttribute("role", "button");
-                dropdownList.appendChild(li);
-
-                li.addEventListener("click", function () {
-                    searchInput.value = item; // Set input value to the selected item's text
-                    let dropdownElement = new bootstrap.Dropdown(searchInput);
-                    dropdownElement.hide();
-                });
-            });
-
-            if (value === '' || filteredData.length === 0) {
-                dropdownList.classList.remove("show");
-            } else {
-                dropdownList.classList.add("show");
-            }
-        });
+        APIClient('/route', 'POST', data, result => {
+            console.log(result)
+        })
     });
+})
 
+const searchFilter = (searchInputID, dropdownListID, data) => {
+    const searchInput = document.getElementById(searchInputID);
+    const dropdownList = document.getElementById(dropdownListID);
+
+    searchInput.addEventListener("input", function () {
+        let value = searchInput.value.toLowerCase();
+        dropdownList.innerHTML = ""; // Clear previous results
+
+        let filteredData = data.filter(item => item.toLowerCase().includes(value));
+
+        filteredData.forEach(item => {
+            let li = document.createElement("li");
+            li.classList.add("dropdown-item");
+            li.textContent = item;
+            li.setAttribute("role", "button");
+            dropdownList.appendChild(li);
+
+            li.addEventListener("click", function () {
+                searchInput.value = item;
+                dropdownList.classList.remove("show");
+            });
+        });
+
+        if (value === '' || filteredData.length === 0) {
+            dropdownList.classList.remove("show");
+        } else {
+            dropdownList.classList.add("show");
+        }
+    });
 }

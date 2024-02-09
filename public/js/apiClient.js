@@ -1,12 +1,10 @@
-const APIClient = (method, resCallback) => $.ajax({
-    url: '/buildings',
+const APIClient = (endpoint, method, data, resCallback) => $.ajax({
+    url: endpoint,
     type: method,
+    data: data,
     dataType: 'json',
-    complete: (xhr) => {
-        let response = xhr.responseJSON;
-        console.log(response)
-        console.log(response)
-        resCallback(response.results)
+    success: (data) => {
+        resCallback(data);
     },
     error: (error) => {
         console.error('Error:', error);

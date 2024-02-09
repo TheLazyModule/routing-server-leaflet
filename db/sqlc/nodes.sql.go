@@ -12,6 +12,27 @@ import (
 	dto "routing/db/dto"
 )
 
+const getClosestPointToQueryLocation = `-- name: GetClosestPointToQueryLocation :one
+SELECT id,name,
+       ST_AsText(point_geom) AS closest_geom
+FROM nodes
+ORDER BY point_geom <-> ST_GeomFromText($1, 3857)
+LIMIT 1
+`
+
+type GetClosestPointToQueryLocationRow struct {
+	ID          int64       `json:"id"`
+	Name        string      `json:"name"`
+	ClosestGeom interface{} `json:"closest_geom"`
+}
+
+func (q *Queries) GetClosestPointToQueryLocation(ctx context.Context, stGeomfromtext interface{}) (GetClosestPointToQueryLocationRow, error) {
+	row := q.db.QueryRow(ctx, getClosestPointToQueryLocation, stGeomfromtext)
+	var i GetClosestPointToQueryLocationRow
+	err := row.Scan(&i.ID, &i.Name, &i.ClosestGeom)
+	return i, err
+}
+
 const getNodeAndEdges = `-- name: GetNodeAndEdges :one
 select nodes.id, name, point_geom, edges.id, node_id, neighbors
 from nodes
@@ -62,7 +83,7 @@ func (q *Queries) GetNodeByID(ctx context.Context, id int64) (GetNodeByIDRow, er
 }
 
 const getNodePointGeom = `-- name: GetNodePointGeom :one
-SELECT  ST_ASTEXT(point_geom) as point_geom
+SELECT ST_ASTEXT(point_geom) as point_geom
 FROM nodes
 WHERE id = $1
 `
@@ -106,7 +127,7 @@ func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesById
 }
 
 const listNodePointGeoms = `-- name: ListNodePointGeoms :many
-SELECT  ST_ASTEXT(point_geom) as point_geom
+SELECT ST_ASTEXT(point_geom) as point_geom
 FROM nodes
 `
 

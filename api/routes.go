@@ -1,7 +1,8 @@
 package api
 
 func (s *Server) ServeRoutes() {
-	s.router.GET("/", s.Map)
+	s.router.GET("/", s.ShowMap)
+	s.router.POST("/route", s.GetShortestRouteByPlace)
 	s.router.GET("/buildings", s.GetBuildings)
 	s.router.GET("/places", s.GetPlaces)
 	s.router.GET("/nodes", s.GetNodes)
@@ -11,5 +12,5 @@ func (s *Server) ServeRoutes() {
 	s.router.GET("/edges", s.GetEdges)
 	s.router.GET("/edges/:id", s.GetEdgeByID)
 	s.router.GET("/weights", s.GetWeights)
-	s.router.POST("/route", s.GetShortestRoute)
+	s.router.POST("/nodes/route", s.GetShortestRouteByNode)
 }

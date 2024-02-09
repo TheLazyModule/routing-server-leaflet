@@ -11,6 +11,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getPlace = `-- name: GetPlace :one
+SELECT name, ST_ASTEXT(location) as location
+from places
+where name = $1
+`
+
+type GetPlaceRow struct {
+	Name     pgtype.Text `json:"name"`
+	Location interface{} `json:"location"`
+}
+
+func (q *Queries) GetPlace(ctx context.Context, name pgtype.Text) (GetPlaceRow, error) {
+	row := q.db.QueryRow(ctx, getPlace, name)
+	var i GetPlaceRow
+	err := row.Scan(&i.Name, &i.Location)
+	return i, err
+}
+
+const getPlaceGeom = `-- name: GetPlaceGeom :one
+SELECT ST_ASTEXT(location) as location
+from places
+where name = $1
+`
+
+func (q *Queries) GetPlaceGeom(ctx context.Context, name pgtype.Text) (interface{}, error) {
+	row := q.db.QueryRow(ctx, getPlaceGeom, name)
+	var location interface{}
+	err := row.Scan(&location)
+	return location, err
+}
+
 const listPlaces = `-- name: ListPlaces :many
 SELECT name, ST_ASTEXT(location) as location
 from places

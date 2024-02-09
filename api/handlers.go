@@ -8,7 +8,7 @@ import (
 	"routing/utils"
 )
 
-func (s *Server) Map(ctx *gin.Context) {
+func (s *Server) ShowMap(ctx *gin.Context) {
 	//ctx.File("public/index.html")
 	ctx.Redirect(http.StatusFound, "/static")
 }
@@ -118,7 +118,7 @@ func (s *Server) GetWeights(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, weights)
 }
 
-func (s *Server) GetShortestRoute(ctx *gin.Context) {
+func (s *Server) GetShortestRouteByNode(ctx *gin.Context) {
 	var req routeRequestByID
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -147,6 +147,57 @@ func (s *Server) GetShortestRoute(ctx *gin.Context) {
 	}
 
 	paths, Distance, err := dijkstra.Dijkstra(newGraph, req.FromNodeID, req.ToNodeID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	nodes, err := s.store.GetNodesByIds(ctx, paths)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"distance": Distance, "paths": nodes})
+}
+
+func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
+	var req routeRequestByPlaceJSON
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	geomFrom, err := s.store.GetPlaceGeom(ctx, req.From)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	geomTo, err := s.store.GetPlaceGeom(ctx, req.To)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom)
+	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo)
+
+	edges, err := s.store.ListEdges(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	weights, err := s.store.ListWeights(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	newGraph := g.NewGraph()
+	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	paths, Distance, err := dijkstra.Dijkstra(newGraph, closestNodeFrom.ID, closestNodeTo.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
