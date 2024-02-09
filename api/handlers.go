@@ -165,7 +165,7 @@ func (s *Server) GetShortestRouteByNode(ctx *gin.Context) {
 }
 
 func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
-	var req routeRequestByPlaceJSON
+	var req routeRequestByPlaceOrBuildingJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -182,6 +182,65 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 	}
 	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
 	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
+	fmt.Println(closestNodeTo)
+	fmt.Println(closestNodeFrom)
+
+	edges, err := s.store.ListEdges(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	weights, err := s.store.ListWeights(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	newGraph := g.NewGraph()
+	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	paths, Distance, err := dijkstra.Dijkstra(newGraph, closestNodeFrom.ID, closestNodeTo.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	nodes, err := s.store.GetNodesByIds(ctx, paths)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"distance": Distance, "paths": nodes})
+}
+
+func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
+	var req routeRequestByPlaceOrBuildingJSON
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	geomFrom, err := s.store.GetBuildingCentroidGeom(ctx, req.From)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	geomTo, err := s.store.GetBuildingCentroidGeom(ctx, req.To)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroidGeographic)
+	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroidGeographic)
 	fmt.Println(closestNodeTo)
 	fmt.Println(closestNodeFrom)
 

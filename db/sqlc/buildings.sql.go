@@ -11,8 +11,29 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getBuildingCentroidGeom = `-- name: GetBuildingCentroidGeom :one
+SELECT ST_ASTEXT(centroid)           as building_centroid,
+       ST_ASTEXT(centroid_geography) as building_centroid_geographic
+from buildings
+where name = $1
+`
+
+type GetBuildingCentroidGeomRow struct {
+	BuildingCentroid           interface{} `json:"building_centroid"`
+	BuildingCentroidGeographic interface{} `json:"building_centroid_geographic"`
+}
+
+func (q *Queries) GetBuildingCentroidGeom(ctx context.Context, name pgtype.Text) (GetBuildingCentroidGeomRow, error) {
+	row := q.db.QueryRow(ctx, getBuildingCentroidGeom, name)
+	var i GetBuildingCentroidGeomRow
+	err := row.Scan(&i.BuildingCentroid, &i.BuildingCentroidGeographic)
+	return i, err
+}
+
 const listBuildings = `-- name: ListBuildings :many
-SELECT name, ST_ASTEXT(geom) as geom, ST_ASTEXT(geom_geography) as geom_geographic
+SELECT name,
+       ST_ASTEXT(geom)           as geom,
+       ST_ASTEXT(geom_geography) as geom_geographic
 from buildings
 order by id
 `

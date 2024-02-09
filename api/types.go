@@ -26,7 +26,7 @@ type routeRequestByPlaceForm struct {
 	To   pgtype.Text `form:"to" binding:"required"`
 }
 
-type routeRequestByPlaceJSON struct {
+type routeRequestByPlaceOrBuildingJSON struct {
 	From pgtype.Text `json:"from" binding:"required"`
 	To   pgtype.Text `json:"to" binding:"required"`
 }
