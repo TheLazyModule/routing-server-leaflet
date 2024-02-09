@@ -1,4 +1,4 @@
-import APIClient from "./apiClient";
+import APIClient from "./apiClient.js";
 
 export const submitForm = (routeUrl, formID) => {
     document.addEventListener('DOMContentLoaded', () => {
