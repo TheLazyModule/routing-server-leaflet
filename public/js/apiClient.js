@@ -1,4 +1,4 @@
-const APIClient = (endpoint, method, data, resCallback) => $.ajax({
+const APIClient = (endpoint, method, data, resCallback, resError) => $.ajax({
     url: endpoint,
     type: method,
     data: data,
@@ -7,7 +7,8 @@ const APIClient = (endpoint, method, data, resCallback) => $.ajax({
         resCallback(data);
     },
     error: (error) => {
-        console.error('Error:', error);
+        resError(error)
+
     }
 });
 

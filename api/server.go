@@ -15,7 +15,7 @@ func NewServer(store *db.Store) *Server {
 	server := &Server{store: store}
 	server.router = gin.Default()
 	err := server.router.SetTrustedProxies(nil)
-	server.router.Static("/static", "./public")
+	server.router.Static("/map", "./public")
 	server.ServeRoutes()
 	if err != nil {
 		return nil

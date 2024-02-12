@@ -1,8 +1,5 @@
 import APIClient from "./apiClient.js";
-import {searchFilter, setMap, submitForm} from "./utils.js";
-
-
-setMap()
+import {searchFilter, showAlert, submitForm} from "./utils.js";
 
 
 APIClient('/places', 'GET', '', result => {
@@ -13,6 +10,9 @@ APIClient('/places', 'GET', '', result => {
     console.log(data)
     searchFilter("searchInputFrom2", "dropdownListFrom2", data)
     searchFilter("searchInputTo2", "dropdownListTo2", data)
+}, error => {
+    if (error)
+        showAlert(error.message, 'danger')
 })
 
 APIClient('/buildings', 'GET', '', result => {
@@ -24,6 +24,9 @@ APIClient('/buildings', 'GET', '', result => {
     searchFilter("searchInputFrom", "dropdownListFrom", data)
     searchFilter("searchInputTo", "dropdownListTo", data)
 
+}, error => {
+    if (error)
+        showAlert(error.message, 'danger')
 })
 
 submitForm('/buildings/route', 'form')

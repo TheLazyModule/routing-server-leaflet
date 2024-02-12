@@ -1,5 +1,49 @@
 import APIClient from "./apiClient.js";
 
+
+export const map = L.map('map', {
+    zoomControl: false
+}).setView([6.673175, -1.565423], 20);
+L.control.scale({
+    position: 'topleft'
+}).addTo(map);
+L.control.zoom({
+    position: 'bottomright'
+}).addTo(map);
+
+
+const markersContainer = [];
+
+function clearMarkers() {
+
+    for (let m of markersContainer) {
+        map.removeLayer(m);
+    }
+}
+
+const clearButton = L.control({position: 'topright'});
+
+clearButton.onAdd = () => {
+    const div = L.DomUtil.create('div');
+    div.innerHTML = '<button class="btn btn-danger clear-button">Clear Markers</button>';
+
+    // Wait until the button is added to the map
+    div.querySelector('.clear-button').addEventListener('click', clearMarkers);
+
+    return div;
+};
+
+clearButton.addTo(map);
+
+const sidepanelLeft = L.control.sidepanel('mySidepanelLeft', {
+    tabsPosition: 'left',
+    startTab: 'tab-1'
+}).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
 export const submitForm = (routeUrl, formID) => {
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById(formID);
@@ -16,21 +60,8 @@ export const submitForm = (routeUrl, formID) => {
             APIClient(routeUrl, 'POST', data, result => {
                 console.log(result)
                 const data = result.paths.map(res => res.point_geom_geographic)
-                var polylineCoordinates = [];
-
-                data.forEach(function (wktStr) {
-                    var wkt = new Wkt.Wkt();
-                    wkt.read(wktStr);
-
-                    var leafletObj = wkt.toObject();
-                    leafletObj.addTo(map); // Adds the marker to the map
-
-                    if (leafletObj.getLatLng) {
-                        polylineCoordinates.push(leafletObj.getLatLng());
-                    }
-                });
-
-                // var polyline = L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
+                console.log(data)
+                drawPath(data)
             })
         });
     })
@@ -41,19 +72,19 @@ export const searchFilter = (searchInputID, dropdownListID, data) => {
     const dropdownList = document.getElementById(dropdownListID);
 
     searchInput.addEventListener("input", function () {
-        let value = searchInput.value.toLowerCase();
+        const value = searchInput.value.toLowerCase();
         dropdownList.innerHTML = ""; // Clear previous results
 
-        let filteredData = data.filter(item => item.toLowerCase().includes(value));
+        const filteredData = data.filter(item => item.toLowerCase().includes(value));
 
         filteredData.forEach(item => {
-            let li = document.createElement("li");
+            const li = document.createElement("li");
             li.classList.add("dropdown-item");
             li.textContent = item;
             li.setAttribute("role", "button");
             dropdownList.appendChild(li);
 
-            li.addEventListener("click", function () {
+            li.addEventListener("click", () => {
                 searchInput.value = item;
                 dropdownList.classList.remove("show");
             });
@@ -67,24 +98,39 @@ export const searchFilter = (searchInputID, dropdownListID, data) => {
     });
 }
 
-export const setMap = () => {
+export const showAlert = (message, alertType) => {
+    const alertDiv = document.createElement('div');
+    alertDiv.classList.add('alert', `alert-${alertType}`, 'alert-dismissible', 'fade', 'show');
+    alertDiv.setAttribute('role', 'alert');
 
-    const map = L.map('map', {
-        zoomControl: false
-    }).setView([6.673175, -1.565423], 20);
-    L.control.scale({
-        position: 'topleft'
-    }).addTo(map);
-    L.control.zoom({
-        position: 'bottomright'
-    }).addTo(map);
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
 
-    const sidepanelLeft = L.control.sidepanel('mySidepanelLeft', {
-        tabsPosition: 'left',
-        startTab: 'tab-1'
-    }).addTo(map);
+    // Add the alert to the document body
+    document.body.appendChild(alertDiv);
+}
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+
+function drawPath(data) {
+
+    var polylineCoordinates = [];
+
+    data.forEach((wktStr) => {
+        let wkt = new Wkt.Wkt();
+        wkt.read(wktStr);
+
+        let leafletObj = wkt.toObject();
+
+        leafletObj.addTo(map); // Adds the marker to the map
+        markersContainer.push(leafletObj)
+
+
+        if (leafletObj.getLatLng) {
+            polylineCoordinates.push(leafletObj.getLatLng());
+        }
+    });
+
+    L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
 }

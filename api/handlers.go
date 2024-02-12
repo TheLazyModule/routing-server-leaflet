@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/dijkstra"
@@ -10,8 +9,7 @@ import (
 )
 
 func (s *Server) ShowMap(ctx *gin.Context) {
-	//ctx.File("public/index.html")
-	ctx.Redirect(http.StatusFound, "/static")
+	ctx.Redirect(http.StatusFound, "/map")
 }
 
 func (s *Server) GetPlaces(ctx *gin.Context) {
@@ -182,8 +180,6 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 	}
 	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
 	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
-	fmt.Println(closestNodeTo)
-	fmt.Println(closestNodeFrom)
 
 	edges, err := s.store.ListEdges(ctx)
 	if err != nil {
@@ -229,6 +225,7 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
 	geomFrom, err := s.store.GetBuildingCentroidGeom(ctx, req.From)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -239,10 +236,8 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroidGeographic)
-	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroidGeographic)
-	fmt.Println(closestNodeTo)
-	fmt.Println(closestNodeFrom)
+	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroid)
+	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroid)
 
 	edges, err := s.store.ListEdges(ctx)
 	if err != nil {
