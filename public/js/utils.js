@@ -132,5 +132,5 @@ function drawPath(data) {
         }
     });
 
-    L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
+    // L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
 }
