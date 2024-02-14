@@ -1,9 +1,9 @@
-package api
+package db
 
 import (
-	db "bank/db/sqlc"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	db "routing/db/sqlc"
 )
 
 // Server all HTTP requests
