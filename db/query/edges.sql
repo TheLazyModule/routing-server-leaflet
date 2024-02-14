@@ -1,4 +1,8 @@
 -- name: ListEdges :many
+SELECT node_id, neighbors
+FROM edges;
+
+-- name: GetEdgeByID :one
 SELECT *
 FROM edges
-ORDER BY id;
+where node_id = $1;
