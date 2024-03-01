@@ -3,10 +3,9 @@ package utils
 import (
 	"fmt"
 	"routing/db/sqlc"
-	"routing/graph"
 )
 
-func ReadIntoMemory(graph *graph.Graph, edges interface{}) error {
+func ReadIntoMemory(graph *Graph, edges interface{}) error {
 	// Type switch to handle different types
 	switch e := edges.(type) {
 	case []db.ListEdgesRow:

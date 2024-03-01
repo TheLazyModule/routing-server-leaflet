@@ -2,7 +2,13 @@
 run:
 	go run main.go
 
+
 gen:
 	sqlc generate
 
-.PHONY: run, gen
+shuv:
+	git add .
+	git commit -a
+	git push
+
+.PHONY: run, gen, shuv

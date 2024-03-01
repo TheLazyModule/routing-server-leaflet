@@ -1,4 +1,4 @@
-package dijkstra
+package utils
 
 // Dijkstra finds the shortest path from initial to end node and returns the path.
 //func dijkstra(graph *rg.Graph, initial, end string) ([]string, error) {

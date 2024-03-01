@@ -1,9 +1,8 @@
-package dijkstra
+package utils
 
 import (
 	"fmt"
 	"math"
-	rg "routing/graph"
 )
 
 type PreviousNodeAndWeight struct {
@@ -12,7 +11,7 @@ type PreviousNodeAndWeight struct {
 }
 
 // Dijkstra finds the shortest path from initial to end node and returns the path as node IDs.
-func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, float64, error) {
+func Dijkstra(graph *Graph, initial, end int64) ([]int64, float64, error) {
 	shortestPaths := make(map[int64]PreviousNodeAndWeight)
 	shortestPaths[initial] = PreviousNodeAndWeight{prevNode: -1, weight: 0} // Use -1 to indicate no previous node
 	visited := make(map[int64]bool)
@@ -27,7 +26,7 @@ func Dijkstra(graph *rg.Graph, initial, end int64) ([]int64, float64, error) {
 		weightToCurrentNode := shortestPaths[currentNode].weight
 
 		for _, nextNode := range destinations {
-			weight := graph.GetWeights()[rg.NodePair{currentNode, nextNode}] + weightToCurrentNode
+			weight := graph.GetWeights()[NodePair{currentNode, nextNode}] + weightToCurrentNode
 			if nextWeight, ok := shortestPaths[nextNode]; !ok || weight < nextWeight.weight {
 				shortestPaths[nextNode] = PreviousNodeAndWeight{prevNode: currentNode, weight: weight}
 			}

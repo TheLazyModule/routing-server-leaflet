@@ -3,7 +3,7 @@ import APIClient from "./apiClient.js";
 
 export const map = L.map('map', {
     zoomControl: false
-}).setView([6.673175, -1.565423], 20);
+}).setView([6.673175, -1.565423], 16);
 L.control.scale({
     position: 'topleft'
 }).addTo(map);
@@ -15,7 +15,6 @@ L.control.zoom({
 const markersContainer = [];
 
 function clearMarkers() {
-
     for (let m of markersContainer) {
         map.removeLayer(m);
     }
@@ -35,37 +34,44 @@ clearButton.onAdd = () => {
 
 clearButton.addTo(map);
 
-const sidepanelLeft = L.control.sidepanel('mySidepanelLeft', {
+L.control.sidepanel('mySidepanelLeft', {
     tabsPosition: 'left',
     startTab: 'tab-1'
 }).addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+}).addTo(map)
+
+// L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+// }).addTo(map);
 
 export const submitForm = (routeUrl, formID) => {
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById(formID);
+        const spinner = document.getElementById('spinner');
 
         form.addEventListener('submit', (e) => {
             e.preventDefault(); // Prevent the default form submission
 
+            spinner.style.display = 'flex'; // Show the spinner
+
             const formData = new FormData(form);
             const jsonData = Object.fromEntries(formData.entries());
-            console.log(jsonData)
-            const data = JSON.stringify(jsonData)
-
+            const data = JSON.stringify(jsonData);
 
             APIClient(routeUrl, 'POST', data, result => {
-                console.log(result)
-                const data = result.paths.map(res => res.point_geom_geographic)
-                console.log(data)
-                drawPath(data)
-            })
+                spinner.style.display = 'none'; // Hide the spinner
+                console.log(result);
+                const data = result.paths.map(res => res.point_geom_geographic);
+                console.log(data);
+                drawPath(data);
+            });
         });
-    })
-}
+    });
+};
 
 export const searchFilter = (searchInputID, dropdownListID, data) => {
     const searchInput = document.getElementById(searchInputID);
@@ -114,23 +120,27 @@ export const showAlert = (message, alertType) => {
 
 
 function drawPath(data) {
-
     var polylineCoordinates = [];
 
-    data.forEach((wktStr) => {
+    data.forEach((wktStr, index) => {
         let wkt = new Wkt.Wkt();
         wkt.read(wktStr);
 
         let leafletObj = wkt.toObject();
-
         leafletObj.addTo(map); // Adds the marker to the map
-        markersContainer.push(leafletObj)
-
+        markersContainer.push(leafletObj);
 
         if (leafletObj.getLatLng) {
             polylineCoordinates.push(leafletObj.getLatLng());
         }
+
+        // If this is the first marker, fly to its location
+        if (index === 0) {
+            map.flyTo(leafletObj.getLatLng(), 15, { duration: 1.5 }); // Adjust zoom level and duration as needed
+        }
     });
 
-    // L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
+    // Fit the map bounds to all markers after all have been added
+    const group = L.featureGroup(markersContainer);
+    map.fitBounds(group.getBounds(), { padding: [50, 50] });
 }
