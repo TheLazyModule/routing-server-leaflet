@@ -1,5 +1,5 @@
 CREATE
-EXTENSION IF NOT EXISTS postgis;
+    EXTENSION IF NOT EXISTS postgis;
 
 CREATE TABLE "nodes"
 (
@@ -74,10 +74,10 @@ ALTER TABLE "edges"
 ALTER TABLE "weights"
     ADD FOREIGN KEY ("from_node_id") REFERENCES "nodes" ("id") ON UPDATE CASCADE ON DELETE CASCADE,
     ADD FOREIGN KEY ("to_node_id") REFERENCES "nodes" ("id") ON
-UPDATE CASCADE
-ON
-DELETE
-CASCADE;
+        UPDATE CASCADE
+        ON
+            DELETE
+            CASCADE;
 
 ALTER TABLE "classrooms"
     ADD FOREIGN KEY ("building_id") REFERENCES "buildings" ("id") ON UPDATE CASCADE ON DELETE RESTRICT; -- Corrected foreign key

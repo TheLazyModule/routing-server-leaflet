@@ -2,19 +2,19 @@ include app.env
 export
 
 up:
-	docker-compose up -d
+	docker compose up -d
 
 up-prod:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 down:
-	docker-compose down
+	docker compose down
 
 server:
 	go run main.go
 
 postgres:
-	 docker run --name $(PG_CONTAINER_NAME) -p $(PG_PORT_M5430APPING) -e POSTGRES_PASSWORD=$(PGPASSWORD) -e POSTGRES_USER=$(PGUSER) -d postgres:13.14-alpine3.19
+	 docker run --name $(PG_CONTAINER_NAME) -p $(PG_PORT_MAPPING) -e POSTGRES_PASSWORD=$(PGPASSWORD) -e POSTGRES_USER=$(PGUSER) -d $(IMAGE)
 #	 docker start $(DB_CONTAINER_NAME)
 
 createdb:
@@ -23,15 +23,11 @@ createdb:
 dropdb:
 	 docker exec -it $(PG_CONTAINER_NAME) dropdb $(PGDATABASE) --username=$(PGUSER)
 
-
-generate:
-	npx pgtyped -c config.json
-
 migrate_up:
-	migrate -path ./src/database/sql/migrations -database "$(DATABASE_URL)" -verbose up
+	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose up
 
 migrate_down:
-	migrate -path ./src/database/sql/migrations -database "$(DATABASE_URL)" -verbose down
+	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose down
 
 restart_db:
 	$(MAKE) migrate_down
@@ -43,4 +39,4 @@ shuv:
 	git push
 
 
-.PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db, generate
+.PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db
