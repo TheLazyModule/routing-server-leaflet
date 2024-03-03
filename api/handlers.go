@@ -262,6 +262,7 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 
 	paths, Distance, err := utils.Dijkstra(newGraph, closestNodeFrom.ID, closestNodeTo.ID)
 	if err != nil {
+		// Make error specific
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}

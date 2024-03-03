@@ -7,7 +7,7 @@ APIClient('/places', 'GET', '', result => {
         return res.name !== null
     })
     data = data.map(res => res.name)
-    console.log(data)
+    // console.log(data)
     searchFilter("searchInputFrom2", "dropdownListFrom2", data)
     searchFilter("searchInputTo2", "dropdownListTo2", data)
 }, error => {
@@ -20,7 +20,7 @@ APIClient('/buildings', 'GET', '', result => {
         return res.name !== null
     })
     data = data.map(res => res.name)
-    console.log(data)
+    // console.log(data)
     searchFilter("searchInputFrom", "dropdownListFrom", data)
     searchFilter("searchInputTo", "dropdownListTo", data)
 

@@ -64,10 +64,11 @@ export const submitForm = (routeUrl, formID) => {
 
             APIClient(routeUrl, 'POST', data, result => {
                 spinner.style.display = 'none'; // Hide the spinner
-                console.log(result);
+                // console.log(result);
                 const data = result.paths.map(res => res.point_geom_geographic);
-                console.log(data);
-                drawPath(data);
+                const distance = result.distance;
+                // console.log(data);
+                drawPath(data, distance);
             });
         });
     });
@@ -119,7 +120,7 @@ export const showAlert = (message, alertType) => {
 }
 
 
-function drawPath(data) {
+function drawPath(data, distance) {
     var polylineCoordinates = [];
 
     data.forEach((wktStr, index) => {
@@ -143,4 +144,13 @@ function drawPath(data) {
     // Fit the map bounds to all markers after all have been added
     const group = L.featureGroup(markersContainer);
     map.fitBounds(group.getBounds(), { padding: [50, 50] });
+
+    // Display the total distance traveled as a popup on the last marker
+    if (polylineCoordinates.length > 0) {
+        var lastPoint = polylineCoordinates[polylineCoordinates.length - 1];
+        var distancePopup = L.popup()
+            .setLatLng(lastPoint)
+            .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${distance}m walk</div>`)
+            .openOn(map);
+    }
 }
