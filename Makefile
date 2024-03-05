@@ -21,7 +21,7 @@ createdb:
 	 docker exec -it $(PG_CONTAINER_NAME) createdb --username=$(PGUSER) --owner=$(PGUSER) $(PGDATABASE)
 
 dropdb:
-	 docker exec -it $(PG_CONTAINER_NAME) dropdb $(PGDATABASE) --username=$(PGUSER)
+	 docker exec -it $(PG_CONTAINER_NAME) dropdb $(PGDATABASE) -f --username=$(PGUSER)
 
 migrate_up:
 	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose up

@@ -1,14 +1,12 @@
 version: '3.8'
 services:
   db:
-    container_name: ${PG_CONTAINER_NAME}
-    image: ${IMAGE}
-    env_file:
-      - app.env
+    container_name: "${PG_CONTAINER_NAME}"
+    image: "${IMAGE}"
     environment:
-      POSTGRES_USER: ${PGUSER}
-      POSTGRES_PASSWORD: ${PGPASSWORD}
-      POSTGRES_DB: ${PGDATABASE}
+      POSTGRES_USER: "${PGUSER}"
+      POSTGRES_PASSWORD: "${PGPASSWORD}"
+      POSTGRES_DB: "${PGDATABASE}"
     ports:
       - "${PG_PORT_MAPPING}"
     volumes:

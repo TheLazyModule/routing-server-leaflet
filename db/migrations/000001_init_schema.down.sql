@@ -27,5 +27,5 @@ DROP TABLE IF EXISTS "weights";
 DROP TABLE IF EXISTS "edges";
 DROP TABLE IF EXISTS "nodes";
 
--- Drop extension
-DROP EXTENSION IF EXISTS postgis;
+-- -- Drop extension
+-- DROP EXTENSION IF EXISTS postgis;
