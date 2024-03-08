@@ -122,30 +122,7 @@ func (s *Server) GetShortestRouteByNode(ctx *gin.Context) {
 		return
 	}
 
-	edges, err := s.store.ListEdges(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	weights, err := s.store.ListWeights(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	newGraph := utils.NewGraph()
-	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	paths, Distance, err := utils.Dijkstra(newGraph, req.FromNodeID, req.ToNodeID)
+	paths, Distance, err := utils.Dijkstra(s.graph, req.FromNodeID, req.ToNodeID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -237,30 +214,7 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroid)
 	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroid)
 
-	edges, err := s.store.ListEdges(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	weights, err := s.store.ListWeights(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	newGraph := utils.NewGraph()
-	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	paths, Distance, err := utils.Dijkstra(newGraph, closestNodeFrom.ID, closestNodeTo.ID)
+	paths, Distance, err := utils.Dijkstra(s.graph, closestNodeFrom.ID, closestNodeTo.ID)
 	if err != nil {
 		// Make error specific
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
