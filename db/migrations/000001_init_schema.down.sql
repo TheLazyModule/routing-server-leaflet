@@ -1,31 +1,33 @@
--- Remove Foreign Keys
-ALTER TABLE "classrooms" DROP CONSTRAINT IF EXISTS classrooms_building_id_fkey;
-ALTER TABLE "weights" DROP CONSTRAINT IF EXISTS weights_to_node_id_fkey;
-ALTER TABLE "weights" DROP CONSTRAINT IF EXISTS weights_from_node_id_fkey;
-ALTER TABLE "edges" DROP CONSTRAINT IF EXISTS edges_node_id_fkey;
+-- Drop indexes for the 'classroom' table
+DROP INDEX IF EXISTS "idx_classroom_room_code";
+DROP INDEX IF EXISTS "idx_classroom_building_id";
 
--- Drop indexes
-DROP INDEX IF EXISTS ix_classrooms_building_id;
-DROP INDEX IF EXISTS ix_buildings_centroid_geography;
-DROP INDEX IF EXISTS ix_buildings_centroid;
-DROP INDEX IF EXISTS ix_buildings_geom_geography;
-DROP INDEX IF EXISTS ix_buildings_geom;
-DROP INDEX IF EXISTS ix_places_location_geography;
-DROP INDEX IF EXISTS ix_places_location;
-DROP INDEX IF EXISTS ix_weights_to_node_id;
-DROP INDEX IF EXISTS ix_weights_from_node_id;
-DROP INDEX IF EXISTS ix_edges_node_id;
-DROP INDEX IF EXISTS ix_nodes_point_geom_geography;
-DROP INDEX IF EXISTS ix_nodes_point_geom;
-DROP INDEX IF EXISTS ix_nodes_id;
+-- Drop indexes for the 'building' table
+DROP INDEX IF EXISTS "idx_building_geom";
+DROP INDEX IF EXISTS "idx_building_name";
 
--- Drop tables
-DROP TABLE IF EXISTS "classrooms";
-DROP TABLE IF EXISTS "buildings";
-DROP TABLE IF EXISTS "places";
-DROP TABLE IF EXISTS "weights";
-DROP TABLE IF EXISTS "edges";
-DROP TABLE IF EXISTS "nodes";
+-- Drop indexes for the 'place' table
+DROP INDEX IF EXISTS "idx_place_location";
+DROP INDEX IF EXISTS "idx_place_name";
 
--- -- Drop extension
--- DROP EXTENSION IF EXISTS postgis;
+-- Drop indexes for the 'edge' table
+DROP INDEX IF EXISTS "idx_edge_weight";
+DROP INDEX IF EXISTS "idx_edge_from_to";
+
+-- Drop indexes for the 'node' table
+DROP INDEX IF EXISTS "idx_node_geom";
+
+-- Drop the 'classroom' table
+DROP TABLE IF EXISTS "classroom";
+
+-- Drop the 'building' table
+DROP TABLE IF EXISTS "building";
+
+-- Drop the 'place' table
+DROP TABLE IF EXISTS "place";
+
+-- Drop the 'edge' table
+DROP TABLE IF EXISTS "edge";
+
+-- Drop the 'node' table
+DROP TABLE IF EXISTS "node";

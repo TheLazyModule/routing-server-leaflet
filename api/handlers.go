@@ -156,30 +156,7 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
 	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
 
-	edges, err := s.store.ListEdges(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	weights, err := s.store.ListWeights(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	newGraph := utils.NewGraph()
-	if err = utils.ReadIntoMemory(newGraph, edges); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	if err = utils.ReadIntoMemory(newGraph, weights); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	paths, Distance, err := utils.Dijkstra(newGraph, closestNodeFrom.ID, closestNodeTo.ID)
+	paths, Distance, err := utils.Dijkstra(s.graph, closestNodeFrom.ID, closestNodeTo.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

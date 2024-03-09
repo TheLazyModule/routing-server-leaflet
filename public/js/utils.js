@@ -67,7 +67,7 @@ export const submitForm = (routeUrl, formID) => {
                 // console.log(result);
                 const data = result.paths.map(res => res.point_geom_geographic);
                 const distance = result.distance;
-                // console.log(data);
+                console.log(data);
                 drawPath(data, distance);
             });
         });

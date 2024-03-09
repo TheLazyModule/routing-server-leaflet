@@ -21,7 +21,7 @@ func NewServer(store *db.Store) *Server {
 		return nil
 	}
 	server.router.Static("/map", "./public")
-	err = server.InitServer()
+	err = server.ConstructGraph()
 	if err != nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func NewServer(store *db.Store) *Server {
 	return server
 }
 
-func (s *Server) InitServer() error {
+func (s *Server) ConstructGraph() error {
 	newGraph, err := s.ReadGraphIntoMemory(&gin.Context{})
 	if err != nil {
 		return err
