@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
 	"routing/utils"
 )
 
-func (s *Server) ReadGraphIntoMemory(ctx *gin.Context) (*utils.Graph, error) {
+func (s *Server) ReadGraphIntoMemory(ctx context.Context) (*utils.Graph, error) {
 
 	edges, err := s.store.ListEdges(ctx)
 	if err != nil {
