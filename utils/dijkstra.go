@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"math"
+	"routing/db"
 	"sync"
 	"time"
 )
@@ -29,7 +30,7 @@ func Dijkstra(graph *Graph, initial, end int64) ([]int64, float64, error) {
 		weightToCurrentNode := shortestPaths[currentNode].weight
 
 		for _, nextNode := range destinations {
-			weight := graph.GetWeights()[NodePair{currentNode, nextNode}] + weightToCurrentNode
+			weight := graph.GetWeights()[db.NodePair{currentNode, nextNode}] + weightToCurrentNode
 			if nextWeight, ok := shortestPaths[nextNode]; !ok || weight < nextWeight.weight {
 				shortestPaths[nextNode] = PreviousNodeAndWeight{prevNode: currentNode, weight: weight}
 			}
@@ -82,7 +83,7 @@ func DijkstraConcurrent(graph *Graph, initial, end int64) ([]int64, float64, err
 		for _, nextNode := range destinations {
 			go func(nextNode int64) {
 				defer wg.Done()
-				weight := graph.GetWeights()[NodePair{currentNode, nextNode}] + weightToCurrentNode
+				weight := graph.GetWeights()[db.NodePair{currentNode, nextNode}] + weightToCurrentNode
 				shortestPathsMu.Lock()
 				if nextWeight, ok := shortestPaths[nextNode]; !ok || weight < nextWeight.weight {
 					shortestPaths[nextNode] = PreviousNodeAndWeight{prevNode: currentNode, weight: weight}

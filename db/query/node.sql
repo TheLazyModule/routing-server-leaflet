@@ -20,13 +20,15 @@ FROM node
 WHERE id = $1;
 
 -- name: GetNodePointGeom :one
-SELECT ST_ASTEXT(geom)                     AS geom,
+SELECT name,
+       ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
 WHERE id = $1;
 
 -- name: ListNodePointGeoms :many
-SELECT ST_ASTEXT(geom)                     AS geom,
+SELECT name,
+       ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node;
 

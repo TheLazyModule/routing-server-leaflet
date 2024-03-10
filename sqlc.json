@@ -22,14 +22,6 @@
               "db_type": "geometry",
               "go_type": "github.com/twpayne/go-geom.Point",
               "nullable": true
-            },
-            {
-              "column": "edges.edges",
-              "go_type": {
-                "import": "routing/db/dto",
-                "package": "dto",
-                "type": "EdgesData"
-              }
             }
           ],
           "emit_json_tags": true,

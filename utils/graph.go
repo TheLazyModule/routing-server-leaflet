@@ -1,19 +1,19 @@
 package utils
 
-import "routing/db/dto"
+import (
+	"routing/db"
+)
 
 /*
 	Graph
 
-edges is a map of all possible next nodes
+Edges is a map of all possible next nodes
 
 	e.g. {'X': ['A', 'B', 'C', 'E'], ...}
-	weights has all the weights between two nodes,
+	Weights has all the Weights between two nodes,
 	with the two nodes as a tuple as the key
 	e.g. {[ 'X', 'A' ]: 7, [ 'X', 'B' ]: 2, ...}
 */
-
-type NodePair [2]int64
 
 type Node struct {
 	label string
@@ -21,8 +21,8 @@ type Node struct {
 }
 
 type Graph struct {
-	edges   map[int64]dto.EdgesData
-	weights map[NodePair]float64
+	Edges   map[int64]db.EdgesData
+	Weights map[db.NodePair]float64
 }
 
 func NewGraph() *Graph {
@@ -31,39 +31,39 @@ func NewGraph() *Graph {
 
 func (g *Graph) AddEdge(fromNode, toNode int64, weight float64) error {
 	g.initializeMaps()
-	g.edges[fromNode] = append(g.edges[fromNode], toNode)
-	g.edges[toNode] = append(g.edges[toNode], fromNode)
-	g.weights[NodePair{fromNode, toNode}] = weight
+	g.Edges[fromNode] = append(g.Edges[fromNode], toNode)
+	g.Edges[toNode] = append(g.Edges[toNode], fromNode)
+	g.Weights[db.NodePair{fromNode, toNode}] = weight
 	return nil
 }
 
 func (g *Graph) initializeMaps() {
-	if g.edges == nil {
-		g.edges = make(map[int64]dto.EdgesData)
+	if g.Edges == nil {
+		g.Edges = make(map[int64]db.EdgesData)
 	}
-	if g.weights == nil {
-		g.weights = make(map[NodePair]float64)
+	if g.Weights == nil {
+		g.Weights = make(map[db.NodePair]float64)
 	}
 }
 
-func (g *Graph) GetEdges() map[int64]dto.EdgesData {
-	return g.edges
+func (g *Graph) GetEdges() map[int64]db.EdgesData {
+	return g.Edges
 }
 
-func (g *Graph) GetWeights() map[NodePair]float64 {
-	return g.weights
+func (g *Graph) GetWeights() map[db.NodePair]float64 {
+	return g.Weights
 }
 
-// AddEdgesFromDB adds edges from db
-func (g *Graph) AddEdgesFromDB(nodeId int64, neighbors dto.EdgesData) error {
+// AddEdgesFromDB adds Edges from db
+func (g *Graph) AddEdgesFromDB(nodeId int64, neighbors db.EdgesData) error {
 	g.initializeMaps()
-	g.edges[nodeId] = neighbors
+	g.Edges[nodeId] = neighbors
 	return nil
 }
 
-// AddWeightsFromDB adds weights from db
+// AddWeightsFromDB adds Weights from db
 func (g *Graph) AddWeightsFromDB(fromNodeID, toNodeID int64, distance float64) error {
 	g.initializeMaps()
-	g.weights[NodePair{fromNodeID, toNodeID}] = distance
+	g.Weights[db.NodePair{fromNodeID, toNodeID}] = distance
 	return nil
 }

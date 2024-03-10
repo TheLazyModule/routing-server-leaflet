@@ -1,4 +1,4 @@
-package api
+package db
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
@@ -19,7 +19,7 @@ type ReqID struct {
 	ID int64 `uri:"id" binding:"required"`
 }
 
-type routeRequestByID struct {
+type RouteRequestByID struct {
 	FromNodeID int64 `json:"from_node_id" binding:"required,min=1"`
 	ToNodeID   int64 `json:"to_node_id" binding:"required,min=1"`
 }
@@ -29,12 +29,10 @@ type routeRequestByPlaceForm struct {
 	To   pgtype.Text `form:"to" binding:"required"`
 }
 
-type routeRequestByPlaceOrBuildingJSON struct {
+type RouteRequestByPlaceOrBuildingJSON struct {
 	From pgtype.Text `json:"from" binding:"required"`
 	To   pgtype.Text `json:"to" binding:"required"`
 }
-
-type EdgesData []string
 
 type ClosestNodeResult struct {
 	Node db.GetClosestPointToQueryLocationRow
@@ -51,3 +49,15 @@ type Nodes struct {
 	Nodes []db.GetNodesByIdsRow
 	Err   error
 }
+
+type EdgesData []int64
+
+type Edge struct {
+	FromNodeID int64
+	ToNodeID   int64
+	Weight     float64
+}
+
+type Neighbors []int64
+
+type NodePair [2]int64

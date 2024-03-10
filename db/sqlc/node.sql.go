@@ -60,13 +60,15 @@ func (q *Queries) GetNodeByID(ctx context.Context, id int64) (GetNodeByIDRow, er
 }
 
 const getNodePointGeom = `-- name: GetNodePointGeom :one
-SELECT ST_ASTEXT(geom)                     AS geom,
+SELECT name,
+       ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
 WHERE id = $1
 `
 
 type GetNodePointGeomRow struct {
+	Name           string      `json:"name"`
 	Geom           interface{} `json:"geom"`
 	GeomGeographic interface{} `json:"geom_geographic"`
 }
@@ -74,7 +76,7 @@ type GetNodePointGeomRow struct {
 func (q *Queries) GetNodePointGeom(ctx context.Context, id int64) (GetNodePointGeomRow, error) {
 	row := q.db.QueryRow(ctx, getNodePointGeom, id)
 	var i GetNodePointGeomRow
-	err := row.Scan(&i.Geom, &i.GeomGeographic)
+	err := row.Scan(&i.Name, &i.Geom, &i.GeomGeographic)
 	return i, err
 }
 
@@ -92,7 +94,7 @@ type GetNodesByIdsRow struct {
 	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
-func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsRow, error) {
+func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
 	rows, err := q.db.Query(ctx, getNodesByIds, id)
 	if err != nil {
 		return nil, err
@@ -113,12 +115,14 @@ func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsR
 }
 
 const listNodePointGeoms = `-- name: ListNodePointGeoms :many
-SELECT ST_ASTEXT(geom)                     AS geom,
+SELECT name,
+       ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
 `
 
 type ListNodePointGeomsRow struct {
+	Name           string      `json:"name"`
 	Geom           interface{} `json:"geom"`
 	GeomGeographic interface{} `json:"geom_geographic"`
 }
@@ -132,7 +136,7 @@ func (q *Queries) ListNodePointGeoms(ctx context.Context) ([]ListNodePointGeomsR
 	items := []ListNodePointGeomsRow{}
 	for rows.Next() {
 		var i ListNodePointGeomsRow
-		if err := rows.Scan(&i.Geom, &i.GeomGeographic); err != nil {
+		if err := rows.Scan(&i.Name, &i.Geom, &i.GeomGeographic); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

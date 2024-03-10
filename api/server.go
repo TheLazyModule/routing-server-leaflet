@@ -10,7 +10,7 @@ import (
 type Server struct {
 	store  *db.Store
 	router *gin.Engine
-	graph  *utils.Graph
+	Graph  *utils.Graph
 }
 
 func NewServer(store *db.Store) (*Server, error) {
@@ -30,11 +30,10 @@ func NewServer(store *db.Store) (*Server, error) {
 }
 
 func (s *Server) ConstructGraph() error {
-	newGraph, err := s.ReadGraphIntoMemory(&gin.Context{})
+	err := s.ReadGraphIntoMemory(&gin.Context{})
 	if err != nil {
 		return err
 	}
-	s.graph = newGraph
 	return nil
 }
 
