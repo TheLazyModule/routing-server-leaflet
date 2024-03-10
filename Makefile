@@ -38,5 +38,9 @@ shuv:
 	git commit -a
 	git push
 
+generate:
+	sqlc generate
+
+
 
 .PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db
