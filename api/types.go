@@ -1,6 +1,9 @@
 package api
 
-import "github.com/jackc/pgx/v5/pgtype"
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+	db "routing/db/sqlc"
+)
 
 type getWeightRequest struct {
 	FromNodeID int64 `json:"from_node_id" binding:"required"`
@@ -32,3 +35,19 @@ type routeRequestByPlaceOrBuildingJSON struct {
 }
 
 type EdgesData []string
+
+type ClosestNodeResult struct {
+	Node db.GetClosestPointToQueryLocationRow
+	Err  error
+}
+
+type DijkstraResult struct {
+	Paths    []int64
+	Distance float64
+	Err      error
+}
+
+type Nodes struct {
+	Nodes []db.GetNodesByIdsRow
+	Err   error
+}

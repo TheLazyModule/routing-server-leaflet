@@ -13,20 +13,20 @@ type Server struct {
 	graph  *utils.Graph
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store *db.Store) (*Server, error) {
 	server := &Server{store: store}
 	server.router = gin.Default()
 	err := server.router.SetTrustedProxies(nil)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	server.router.Static("/map", "./public")
 	err = server.ConstructGraph()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	server.ServeRoutes()
-	return server
+	return server, nil
 }
 
 func (s *Server) ConstructGraph() error {

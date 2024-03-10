@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/utils"
+	"sync"
 )
 
 func (s *Server) ShowMap(ctx *gin.Context) {
@@ -153,10 +154,36 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
-	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
+	closestNodeFromChan := make(chan ClosestNodeResult)
+	closestNodeToChan := make(chan ClosestNodeResult)
 
-	paths, Distance, err := utils.Dijkstra(s.graph, closestNodeFrom.ID, closestNodeTo.ID)
+	var wg sync.WaitGroup
+
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
+		closestNodeFromChan <- ClosestNodeResult{closestNodeFrom, err}
+	}()
+	go func() {
+		defer wg.Done()
+		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
+		closestNodeToChan <- ClosestNodeResult{closestNodeTo, err}
+	}()
+
+	wg.Wait()
+
+	if (<-closestNodeFromChan).Err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if (<-closestNodeToChan).Err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	paths, Distance, err := utils.Dijkstra(s.graph, (<-closestNodeFromChan).Node.ID, (<-closestNodeToChan).Node.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -188,21 +215,61 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	closestNodeFrom, _ := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroid)
-	closestNodeTo, _ := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroid)
+	closestNodeFromChan := make(chan ClosestNodeResult, 1)
+	closestNodeToChan := make(chan ClosestNodeResult, 1)
+	dijkstraResultChan := make(chan DijkstraResult, 1)
+	nodesChan := make(chan Nodes, 1)
 
-	paths, Distance, err := utils.Dijkstra(s.graph, closestNodeFrom.ID, closestNodeTo.ID)
-	if err != nil {
-		// Make error specific
+	var wg sync.WaitGroup
+
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroid)
+		closestNodeFromChan <- ClosestNodeResult{closestNodeFrom, err}
+	}()
+	go func() {
+		defer wg.Done()
+		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroid)
+		closestNodeToChan <- ClosestNodeResult{closestNodeTo, err}
+	}()
+
+	closestNodeFromResult := <-closestNodeFromChan
+	closestNodeToResult := <-closestNodeToChan
+
+	if closestNodeFromResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	nodes, err := s.store.GetNodesByIds(ctx, paths)
-	if err != nil {
+	if closestNodeToResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"distance": Distance, "paths": nodes})
+	go func() {
+		defer wg.Done()
+		paths, distance, err := utils.Dijkstra(s.graph, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID)
+		dijkstraResultChan <- DijkstraResult{Paths: paths, Distance: distance, Err: err}
+	}()
+
+	dijkstraResult := <-dijkstraResultChan
+	if dijkstraResult.Err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(dijkstraResult.Err))
+		return
+	}
+
+	go func() {
+		defer wg.Done()
+		nodes, err := s.store.GetNodesByIds(ctx, dijkstraResult.Paths)
+		nodesChan <- Nodes{Nodes: nodes, Err: err}
+	}()
+	nodesResult := <-nodesChan
+	if nodesResult.Err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	wg.Wait()
+	ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
 }
