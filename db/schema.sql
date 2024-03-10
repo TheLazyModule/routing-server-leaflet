@@ -1,83 +1,62 @@
 CREATE
 EXTENSION IF NOT EXISTS postgis;
 
-CREATE TABLE "nodes"
-(
-    "id"                   bigserial PRIMARY KEY,
-    "name"                 varchar UNIQUE NOT NULL,
-    "point_geom"           geometry(Point, 3857) NOT NULL,
-    "point_geom_geography" geography(Point, 4326) NOT NULL
+-- Create the 'node' table
+CREATE TABLE "node" (
+                        "id" BIGSERIAL PRIMARY KEY,
+                        "name" VARCHAR NOT NULL UNIQUE,
+                        "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
 );
 
-CREATE TABLE "edges"
-(
-    "id"        bigserial PRIMARY KEY,
-    "node_id"   bigint NOT NULL,
-    "neighbors" jsonb -- '["A", "B", "C"]'
+-- Create the 'edge' table
+CREATE TABLE "edge" (
+                        "id" BIGSERIAL PRIMARY KEY,
+                        "from_node_id" BIGINT NOT NULL,
+                        "to_node_id" BIGINT NOT NULL,
+                        "weight" DOUBLE PRECISION NOT NULL,
+                        CONSTRAINT "fk_from_node_id" FOREIGN KEY ("from_node_id") REFERENCES "node" ("id"),
+                        CONSTRAINT "fk_to_node_id" FOREIGN KEY ("to_node_id") REFERENCES "node" ("id"),
+                        CONSTRAINT "edge_unique_constraint" UNIQUE ("from_node_id", "to_node_id")
 );
 
-CREATE TABLE "weights"
-(
-    "from_node_id" bigint           NOT NULL,
-    "to_node_id"   bigint           NOT NULL,
-    "distance"     double precision NOT NULL,
-    PRIMARY KEY ("from_node_id", "to_node_id")
+-- Create the 'place' table
+CREATE TABLE "place" (
+                         "id" BIGSERIAL PRIMARY KEY,
+                         "name" VARCHAR NOT NULL,
+                         "location" GEOMETRY(POINT, 3857)
 );
 
-CREATE TABLE "places"
-(
-    "id"                 bigserial PRIMARY KEY,
-    "name"               varchar,
-    "location"           geometry(Point, 3857),
-    "location_geography" geography(Point, 4326)
+-- Create the 'building' table
+CREATE TABLE "building" (
+                            "id" BIGSERIAL PRIMARY KEY,
+                            "name" VARCHAR NOT NULL,
+                            "geom" GEOMETRY(POLYGON, 3857)
 );
 
-CREATE TABLE "buildings"
-(
-    "id"                 bigserial PRIMARY KEY,
-    "name"               varchar,
-    "geom"               geometry(Polygon, 3857),
-    "geom_geography"     geography(Polygon, 4326),
-    "centroid"           geometry(Point, 3857),
-    "centroid_geography" geography(Point, 4326) -- Corrected SRID
+-- Create the 'classroom.sql' table
+CREATE TABLE "classroom" (
+                             "id" BIGSERIAL PRIMARY KEY,
+                             "building_id" BIGINT NOT NULL,
+                             "room_code" VARCHAR NOT NULL,
+                             CONSTRAINT "fk_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
+                             CONSTRAINT "classroom_unique_constraint" UNIQUE ("building_id", "room_code")
 );
 
-CREATE TABLE "classrooms"
-(
-    "id"          bigserial PRIMARY KEY,
-    "building_id" bigint  NOT NULL,
-    "name"        varchar NOT NULL
-);
+-- Create indexes for the 'node' table
+CREATE INDEX "idx_node_geom" ON "node" ("geom");
 
--- indexes
-CREATE INDEX ix_nodes_id ON "nodes" USING btree ("id");
-CREATE INDEX ix_nodes_point_geom ON "nodes" USING gist ("point_geom");
-CREATE INDEX ix_nodes_point_geom_geography ON "nodes" USING gist ("point_geom_geography");
-CREATE INDEX ix_edges_node_id ON "edges" USING btree ("node_id");
-CREATE INDEX ix_weights_from_node_id ON "weights" USING btree ("from_node_id");
-CREATE INDEX ix_weights_to_node_id ON "weights" USING btree ("to_node_id");
+-- Create indexes for the 'edge' table
+CREATE INDEX "idx_edge_from_to" ON "edge" ("from_node_id", "to_node_id");
+CREATE INDEX "idx_edge_weight" ON "edge" ("weight");
 
-CREATE INDEX ix_places_location ON "places" USING gist ("location");
-CREATE INDEX ix_places_location_geography ON "places" USING gist ("location_geography");
+-- Create indexes for the 'place' table
+CREATE INDEX "idx_place_name" ON "place" ("name");
+CREATE INDEX "idx_place_location" ON "place" ("location");
 
-CREATE INDEX ix_buildings_geom ON "buildings" USING gist ("geom");
-CREATE INDEX ix_buildings_geom_geography ON "buildings" USING gist ("geom_geography");
-CREATE INDEX ix_buildings_centroid ON "buildings" USING gist ("centroid");
-CREATE INDEX ix_buildings_centroid_geography ON "buildings" USING gist ("centroid_geography");
+-- Create indexes for the 'building' table
+CREATE INDEX "idx_building_name" ON "building" ("name");
+CREATE INDEX "idx_building_geom" ON "building" ("geom");
 
-CREATE INDEX ix_classrooms_building_id ON "classrooms" USING btree ("building_id");
-
--- Foreign Keys
-ALTER TABLE "edges"
-    ADD FOREIGN KEY ("node_id") REFERENCES "nodes" ("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE "weights"
-    ADD FOREIGN KEY ("from_node_id") REFERENCES "nodes" ("id") ON UPDATE CASCADE ON DELETE CASCADE,
-    ADD FOREIGN KEY ("to_node_id") REFERENCES "nodes" ("id") ON
-UPDATE CASCADE
-ON
-DELETE
-CASCADE;
-
-ALTER TABLE "classrooms"
-    ADD FOREIGN KEY ("building_id") REFERENCES "buildings" ("id") ON UPDATE CASCADE ON DELETE RESTRICT; -- Corrected foreign key
+-- Create indexes for the 'classroom.sql' table
+CREATE INDEX "idx_classroom_building_id" ON "classroom" ("building_id");
+CREATE INDEX "idx_classroom_room_code" ON "classroom" ("room_code");

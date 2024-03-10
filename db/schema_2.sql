@@ -33,7 +33,7 @@ CREATE TABLE "building" (
                             "geom" GEOMETRY(POLYGON, 3857)
 );
 
--- Create the 'classroom' table
+-- Create the 'classroom.sql' table
 CREATE TABLE "classroom" (
                              "id" BIGSERIAL PRIMARY KEY,
                              "building_id" BIGINT NOT NULL,
@@ -57,6 +57,6 @@ CREATE INDEX "idx_place_location" ON "place" ("location");
 CREATE INDEX "idx_building_name" ON "building" ("name");
 CREATE INDEX "idx_building_geom" ON "building" ("geom");
 
--- Create indexes for the 'classroom' table
+-- Create indexes for the 'classroom.sql' table
 CREATE INDEX "idx_classroom_building_id" ON "classroom" ("building_id");
 CREATE INDEX "idx_classroom_room_code" ON "classroom" ("room_code");

@@ -1,5 +1,6 @@
 -- name: ListPlaces :many
-SELECT name, ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
+SELECT name, ST_ASTEXT(location) as location
+     , ST_ASTEXT(location_geography) as location_geographic
 from places
 order by id;
 
