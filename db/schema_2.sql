@@ -23,7 +23,7 @@ CREATE TABLE "edge" (
 CREATE TABLE "place" (
                          "id" BIGSERIAL PRIMARY KEY,
                          "name" VARCHAR NOT NULL,
-                         "location" GEOMETRY(POINT, 3857)
+                         "geom" GEOMETRY(POINT, 3857)
 );
 
 -- Create the 'building' table
@@ -51,7 +51,7 @@ CREATE INDEX "idx_edge_weight" ON "edge" ("weight");
 
 -- Create indexes for the 'place' table
 CREATE INDEX "idx_place_name" ON "place" ("name");
-CREATE INDEX "idx_place_location" ON "place" ("location");
+CREATE INDEX "idx_place_geom" ON "place" ("geom");
 
 -- Create indexes for the 'building' table
 CREATE INDEX "idx_building_name" ON "building" ("name");

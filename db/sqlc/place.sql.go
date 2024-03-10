@@ -11,56 +11,56 @@ import (
 
 const getPlace = `-- name: GetPlace :one
 SELECT name,
-       ST_ASTEXT(location)                     as location,
-       ST_ASTEXT(ST_TRANSFORM(location, 4326)) as location_geographic
+       ST_ASTEXT(geom)                     as geom,
+       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
 from place
 where name = $1
 `
 
 type GetPlaceRow struct {
-	Name               string      `json:"name"`
-	Location           interface{} `json:"location"`
-	LocationGeographic interface{} `json:"location_geographic"`
+	Name           string      `json:"name"`
+	Geom           interface{} `json:"geom"`
+	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
 func (q *Queries) GetPlace(ctx context.Context, name string) (GetPlaceRow, error) {
 	row := q.db.QueryRow(ctx, getPlace, name)
 	var i GetPlaceRow
-	err := row.Scan(&i.Name, &i.Location, &i.LocationGeographic)
+	err := row.Scan(&i.Name, &i.Geom, &i.GeomGeographic)
 	return i, err
 }
 
 const getPlaceGeom = `-- name: GetPlaceGeom :one
-SELECT ST_ASTEXT(location)                     as location,
-       ST_ASTEXT(ST_TRANSFORM(location, 4326)) as location_geographic
+SELECT ST_ASTEXT(geom)                     as geom,
+       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
 from place
 where name = $1
 `
 
 type GetPlaceGeomRow struct {
-	Location           interface{} `json:"location"`
-	LocationGeographic interface{} `json:"location_geographic"`
+	Geom           interface{} `json:"geom"`
+	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
 func (q *Queries) GetPlaceGeom(ctx context.Context, name string) (GetPlaceGeomRow, error) {
 	row := q.db.QueryRow(ctx, getPlaceGeom, name)
 	var i GetPlaceGeomRow
-	err := row.Scan(&i.Location, &i.LocationGeographic)
+	err := row.Scan(&i.Geom, &i.GeomGeographic)
 	return i, err
 }
 
 const listPlaces = `-- name: ListPlaces :many
 SELECT name
-     , ST_ASTEXT(location)                     as location
-     , ST_ASTEXT(ST_TRANSFORM(location, 4326)) as location_geographic
+     , ST_ASTEXT(geom)                     as geom
+     , ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
 from place
 order by id
 `
 
 type ListPlacesRow struct {
-	Name               string      `json:"name"`
-	Location           interface{} `json:"location"`
-	LocationGeographic interface{} `json:"location_geographic"`
+	Name           string      `json:"name"`
+	Geom           interface{} `json:"geom"`
+	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
 func (q *Queries) ListPlaces(ctx context.Context) ([]ListPlacesRow, error) {
@@ -72,7 +72,7 @@ func (q *Queries) ListPlaces(ctx context.Context) ([]ListPlacesRow, error) {
 	items := []ListPlacesRow{}
 	for rows.Next() {
 		var i ListPlacesRow
-		if err := rows.Scan(&i.Name, &i.Location, &i.LocationGeographic); err != nil {
+		if err := rows.Scan(&i.Name, &i.Geom, &i.GeomGeographic); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

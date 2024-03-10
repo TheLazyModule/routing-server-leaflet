@@ -7,7 +7,7 @@ DROP INDEX IF EXISTS "idx_building_geom";
 DROP INDEX IF EXISTS "idx_building_name";
 
 -- Drop indexes for the 'place' table
-DROP INDEX IF EXISTS "idx_place_location";
+DROP INDEX IF EXISTS "idx_place_geom";
 DROP INDEX IF EXISTS "idx_place_name";
 
 -- Drop indexes for the 'edge' table
@@ -18,7 +18,7 @@ DROP INDEX IF EXISTS "idx_edge_from_to";
 DROP INDEX IF EXISTS "idx_node_geom";
 
 -- Drop the 'classroom.sql' table
-DROP TABLE IF EXISTS "classroom.sql";
+DROP TABLE IF EXISTS "classroom";
 
 -- Drop the 'building' table
 DROP TABLE IF EXISTS "building";

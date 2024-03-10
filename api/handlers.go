@@ -154,12 +154,12 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Location)
+		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Geom)
 		closestNodeFromChan <- db.ClosestNodeResult{Node: closestNodeFrom, Err: err}
 	}()
 	go func() {
 		defer wg.Done()
-		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Location)
+		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Geom)
 		closestNodeToChan <- db.ClosestNodeResult{Node: closestNodeTo, Err: err}
 	}()
 
@@ -231,12 +231,12 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 	go func() {
 		defer wg.Done()
 		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroid)
-		closestNodeFromChan <- db.ClosestNodeResult{closestNodeFrom, err}
+		closestNodeFromChan <- db.ClosestNodeResult{Node: closestNodeFrom, Err: err}
 	}()
 	go func() {
 		defer wg.Done()
 		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroid)
-		closestNodeToChan <- db.ClosestNodeResult{closestNodeTo, err}
+		closestNodeToChan <- db.ClosestNodeResult{Node: closestNodeTo, Err: err}
 	}()
 
 	closestNodeFromResult := <-closestNodeFromChan
