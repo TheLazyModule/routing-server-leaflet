@@ -6,3 +6,4 @@ from classroom;
 select *
 from classroom
 where id = $1;
+

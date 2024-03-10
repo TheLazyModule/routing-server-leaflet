@@ -2,7 +2,6 @@
 SELECT name,
        ST_ASTEXT(geom)                     as geom,
        st_astext(st_transform(geom, 4326)) as geom_geographic
-
 from buildings
 order by id;
 
