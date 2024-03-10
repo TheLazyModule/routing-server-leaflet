@@ -18,7 +18,7 @@ DROP INDEX IF EXISTS "idx_edge_from_to";
 DROP INDEX IF EXISTS "idx_node_geom";
 
 -- Drop the 'classroom.sql' table
-DROP TABLE IF EXISTS "classroom";
+DROP TABLE IF EXISTS "classroom.sql";
 
 -- Drop the 'building' table
 DROP TABLE IF EXISTS "building";
@@ -31,3 +31,4 @@ DROP TABLE IF EXISTS "edge";
 
 -- Drop the 'node' table
 DROP TABLE IF EXISTS "node";
+

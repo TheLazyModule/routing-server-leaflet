@@ -1,6 +1,6 @@
 -- name: ListEdges :many
 SELECT from_node_id, to_node_id, weight
-FROM edges;
+FROM edge;
 
 -- name: GetEdge :one
 SELECT *

@@ -7,23 +7,23 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getPlace = `-- name: GetPlace :one
-SELECT name, ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
-from places
+SELECT name,
+       ST_ASTEXT(location)                     as location,
+       ST_ASTEXT(ST_TRANSFORM(location, 4326)) as location_geographic
+from place
 where name = $1
 `
 
 type GetPlaceRow struct {
-	Name               pgtype.Text `json:"name"`
+	Name               string      `json:"name"`
 	Location           interface{} `json:"location"`
 	LocationGeographic interface{} `json:"location_geographic"`
 }
 
-func (q *Queries) GetPlace(ctx context.Context, name pgtype.Text) (GetPlaceRow, error) {
+func (q *Queries) GetPlace(ctx context.Context, name string) (GetPlaceRow, error) {
 	row := q.db.QueryRow(ctx, getPlace, name)
 	var i GetPlaceRow
 	err := row.Scan(&i.Name, &i.Location, &i.LocationGeographic)
@@ -31,8 +31,9 @@ func (q *Queries) GetPlace(ctx context.Context, name pgtype.Text) (GetPlaceRow, 
 }
 
 const getPlaceGeom = `-- name: GetPlaceGeom :one
-SELECT ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
-from places
+SELECT ST_ASTEXT(location)                     as location,
+       ST_ASTEXT(ST_TRANSFORM(location, 4326)) as location_geographic
+from place
 where name = $1
 `
 
@@ -41,7 +42,7 @@ type GetPlaceGeomRow struct {
 	LocationGeographic interface{} `json:"location_geographic"`
 }
 
-func (q *Queries) GetPlaceGeom(ctx context.Context, name pgtype.Text) (GetPlaceGeomRow, error) {
+func (q *Queries) GetPlaceGeom(ctx context.Context, name string) (GetPlaceGeomRow, error) {
 	row := q.db.QueryRow(ctx, getPlaceGeom, name)
 	var i GetPlaceGeomRow
 	err := row.Scan(&i.Location, &i.LocationGeographic)
@@ -49,13 +50,15 @@ func (q *Queries) GetPlaceGeom(ctx context.Context, name pgtype.Text) (GetPlaceG
 }
 
 const listPlaces = `-- name: ListPlaces :many
-SELECT name, ST_ASTEXT(location) as location, ST_ASTEXT(location_geography) as location_geographic
-from places
+SELECT name
+     , ST_ASTEXT(location)                     as location
+     , ST_ASTEXT(ST_TRANSFORM(location, 4326)) as location_geographic
+from place
 order by id
 `
 
 type ListPlacesRow struct {
-	Name               pgtype.Text `json:"name"`
+	Name               string      `json:"name"`
 	Location           interface{} `json:"location"`
 	LocationGeographic interface{} `json:"location_geographic"`
 }

@@ -5,48 +5,36 @@
 package db
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/twpayne/go-geom"
-	dto "routing/db/dto"
 )
 
 type Building struct {
-	ID                int64       `json:"id"`
-	Name              pgtype.Text `json:"name"`
-	Geom              geom.Point  `json:"geom"`
-	GeomGeography     interface{} `json:"geom_geography"`
-	Centroid          geom.Point  `json:"centroid"`
-	CentroidGeography interface{} `json:"centroid_geography"`
+	ID   int64      `json:"id"`
+	Name string     `json:"name"`
+	Geom geom.Point `json:"geom"`
 }
 
 type Classroom struct {
 	ID         int64  `json:"id"`
 	BuildingID int64  `json:"building_id"`
-	Name       string `json:"name"`
+	RoomCode   string `json:"room_code"`
 }
 
 type Edge struct {
-	ID        int64         `json:"id"`
-	NodeID    int64         `json:"node_id"`
-	Neighbors dto.EdgesData `json:"neighbors"`
+	ID         int64   `json:"id"`
+	FromNodeID int64   `json:"from_node_id"`
+	ToNodeID   int64   `json:"to_node_id"`
+	Weight     float64 `json:"weight"`
 }
 
 type Node struct {
-	ID                 int64       `json:"id"`
-	Name               string      `json:"name"`
-	PointGeom          geom.Point  `json:"point_geom"`
-	PointGeomGeography interface{} `json:"point_geom_geography"`
+	ID   int64      `json:"id"`
+	Name string     `json:"name"`
+	Geom geom.Point `json:"geom"`
 }
 
 type Place struct {
-	ID                int64       `json:"id"`
-	Name              pgtype.Text `json:"name"`
-	Location          geom.Point  `json:"location"`
-	LocationGeography interface{} `json:"location_geography"`
-}
-
-type Weight struct {
-	FromNodeID int64   `json:"from_node_id"`
-	ToNodeID   int64   `json:"to_node_id"`
-	Distance   float64 `json:"distance"`
+	ID       int64      `json:"id"`
+	Name     string     `json:"name"`
+	Location geom.Point `json:"location"`
 }

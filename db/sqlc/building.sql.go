@@ -7,14 +7,12 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getBuildingCentroidGeom = `-- name: GetBuildingCentroidGeom :one
-SELECT ST_ASTEXT(centroid)           as building_centroid,
-       ST_ASTEXT(centroid_geography) as building_centroid_geographic
-from buildings
+SELECT ST_CENTROID(geom)                   as building_centroid,
+       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as building_centroid_geographic
+from building
 where name = $1
 `
 
@@ -23,23 +21,47 @@ type GetBuildingCentroidGeomRow struct {
 	BuildingCentroidGeographic interface{} `json:"building_centroid_geographic"`
 }
 
-func (q *Queries) GetBuildingCentroidGeom(ctx context.Context, name pgtype.Text) (GetBuildingCentroidGeomRow, error) {
+func (q *Queries) GetBuildingCentroidGeom(ctx context.Context, name string) (GetBuildingCentroidGeomRow, error) {
 	row := q.db.QueryRow(ctx, getBuildingCentroidGeom, name)
 	var i GetBuildingCentroidGeomRow
 	err := row.Scan(&i.BuildingCentroid, &i.BuildingCentroidGeographic)
 	return i, err
 }
 
+const getBuildingNames = `-- name: GetBuildingNames :many
+SELECT name
+from building
+`
+
+func (q *Queries) GetBuildingNames(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, getBuildingNames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listBuildings = `-- name: ListBuildings :many
-SELECT name,
-       ST_ASTEXT(geom)           as geom,
-       ST_ASTEXT(geom_geography) as geom_geographic
-from buildings
+SELECT name, ST_ASTEXT(geom) as geom,
+       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
+from building
 order by id
 `
 
 type ListBuildingsRow struct {
-	Name           pgtype.Text `json:"name"`
+	Name           string      `json:"name"`
 	Geom           interface{} `json:"geom"`
 	GeomGeographic interface{} `json:"geom_geographic"`
 }

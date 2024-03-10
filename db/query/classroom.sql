@@ -1,8 +1,8 @@
--- name: GetClassrooms: many
+-- name: GetClassrooms :many
 select *
 from classroom;
 
--- name: GetClassroom: one
+-- name: GetClassroom :one
 select *
 from classroom
 where id = $1;
