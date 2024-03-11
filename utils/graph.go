@@ -21,8 +21,8 @@ type Node struct {
 }
 
 type Graph struct {
-	Edges   map[int64]db.EdgesData
-	Weights map[db.NodePair]float64
+	Edges   map[int64]db.Neighbours
+	Weights map[db.Edge]float64
 }
 
 func NewGraph() *Graph {
@@ -33,29 +33,29 @@ func (g *Graph) AddEdge(fromNode, toNode int64, weight float64) error {
 	g.initializeMaps()
 	g.Edges[fromNode] = append(g.Edges[fromNode], toNode)
 	g.Edges[toNode] = append(g.Edges[toNode], fromNode)
-	g.Weights[db.NodePair{fromNode, toNode}] = weight
+	g.Weights[db.Edge{FromNodeID: fromNode, ToNodeID: toNode}] = weight
 	return nil
 }
 
 func (g *Graph) initializeMaps() {
 	if g.Edges == nil {
-		g.Edges = make(map[int64]db.EdgesData)
+		g.Edges = make(map[int64]db.Neighbours)
 	}
 	if g.Weights == nil {
-		g.Weights = make(map[db.NodePair]float64)
+		g.Weights = make(map[db.Edge]float64)
 	}
 }
 
-func (g *Graph) GetEdges() map[int64]db.EdgesData {
+func (g *Graph) GetEdges() map[int64]db.Neighbours {
 	return g.Edges
 }
 
-func (g *Graph) GetWeights() map[db.NodePair]float64 {
+func (g *Graph) GetWeights() map[db.Edge]float64 {
 	return g.Weights
 }
 
 // AddEdgesFromDB adds Edges from db
-func (g *Graph) AddEdgesFromDB(nodeId int64, neighbors db.EdgesData) error {
+func (g *Graph) AddEdgesFromDB(nodeId int64, neighbors db.Neighbours) error {
 	g.initializeMaps()
 	g.Edges[nodeId] = neighbors
 	return nil
@@ -64,6 +64,6 @@ func (g *Graph) AddEdgesFromDB(nodeId int64, neighbors db.EdgesData) error {
 // AddWeightsFromDB adds Weights from db
 func (g *Graph) AddWeightsFromDB(fromNodeID, toNodeID int64, distance float64) error {
 	g.initializeMaps()
-	g.Weights[db.NodePair{fromNodeID, toNodeID}] = distance
+	g.Weights[db.Edge{FromNodeID: fromNodeID, ToNodeID: toNodeID}] = distance
 	return nil
 }

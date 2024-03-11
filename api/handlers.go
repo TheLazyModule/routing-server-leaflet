@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/db"
@@ -205,6 +206,7 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 
 func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 	var req db.RouteRequestByPlaceOrBuildingJSON
+	fmt.Println(req)
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

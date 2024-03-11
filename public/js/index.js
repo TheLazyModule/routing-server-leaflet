@@ -12,7 +12,7 @@ APIClient('/places', 'GET', '', result => {
     searchFilter("searchInputTo2", "dropdownListTo2", data)
 }, error => {
     if (error)
-        showAlert(error.message, 'danger')
+        throw new Error(error.message)
 })
 
 APIClient('/buildings', 'GET', '', result => {
@@ -26,7 +26,7 @@ APIClient('/buildings', 'GET', '', result => {
 
 }, error => {
     if (error)
-        showAlert(error.message, 'danger')
+        throw new Error(error.message)
 })
 
 submitForm('/buildings/route', 'form')

@@ -16,7 +16,7 @@ package utils
 //		weightToCurrentNode := shortestPaths[currentNode].weight
 //
 //		for _, nextNode := range destinations {
-//			weight := graph.GetWeights()[rg.NodePair{currentNode, nextNode}] + weightToCurrentNode
+//			weight := graph.GetWeights()[rg.Edge{currentNode, nextNode}] + weightToCurrentNode
 //			if nextWeight, ok := shortestPaths[nextNode]; !ok || weight < nextWeight.weight {
 //				shortestPaths[nextNode] = PreviousNodeAndWeight{prevNode: currentNode, weight: weight}
 //			}

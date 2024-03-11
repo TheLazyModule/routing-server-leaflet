@@ -8,7 +8,6 @@ const APIClient = (endpoint, method, data, resCallback, resError) => $.ajax({
     },
     error: (error) => {
         resError(error)
-
     }
 });
 

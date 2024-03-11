@@ -5,11 +5,6 @@ import (
 	db "routing/db/sqlc"
 )
 
-type getWeightRequest struct {
-	FromNodeID int64 `json:"from_node_id" binding:"required"`
-	ToNodeID   int64 `json:"to_node_id"`
-}
-
 type routeRequest struct {
 	FromNode string `json:"from_node" binding:"required"`
 	ToNode   string `json:"to_node" binding:"required"`
@@ -22,11 +17,6 @@ type ReqID struct {
 type RouteRequestByID struct {
 	FromNodeID int64 `json:"from_node_id" binding:"required,min=1"`
 	ToNodeID   int64 `json:"to_node_id" binding:"required,min=1"`
-}
-
-type routeRequestByPlaceForm struct {
-	From pgtype.Text `form:"from" binding:"required"`
-	To   pgtype.Text `form:"to" binding:"required"`
 }
 
 type RouteRequestByPlaceOrBuildingJSON struct {
@@ -50,14 +40,10 @@ type Nodes struct {
 	Err   error
 }
 
-type EdgesData []int64
+type Neighbours []int64
 
 type Edge struct {
 	FromNodeID int64
 	ToNodeID   int64
 	Weight     float64
 }
-
-type Neighbors []int64
-
-type NodePair [2]int64
