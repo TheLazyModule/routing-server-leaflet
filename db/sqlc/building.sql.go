@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getBuildingCentroidGeom = `-- name: GetBuildingCentroidGeom :one
@@ -21,7 +23,7 @@ type GetBuildingCentroidGeomRow struct {
 	BuildingCentroidGeographic interface{} `json:"building_centroid_geographic"`
 }
 
-func (q *Queries) GetBuildingCentroidGeom(ctx context.Context, name string) (GetBuildingCentroidGeomRow, error) {
+func (q *Queries) GetBuildingCentroidGeom(ctx context.Context, name pgtype.Text) (GetBuildingCentroidGeomRow, error) {
 	row := q.db.QueryRow(ctx, getBuildingCentroidGeom, name)
 	var i GetBuildingCentroidGeomRow
 	err := row.Scan(&i.BuildingCentroid, &i.BuildingCentroidGeographic)
@@ -33,15 +35,15 @@ SELECT name
 from building
 `
 
-func (q *Queries) GetBuildingNames(ctx context.Context) ([]string, error) {
+func (q *Queries) GetBuildingNames(ctx context.Context) ([]pgtype.Text, error) {
 	rows, err := q.db.Query(ctx, getBuildingNames)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []string{}
+	items := []pgtype.Text{}
 	for rows.Next() {
-		var name string
+		var name pgtype.Text
 		if err := rows.Scan(&name); err != nil {
 			return nil, err
 		}
@@ -61,7 +63,7 @@ order by id
 `
 
 type ListBuildingsRow struct {
-	Name           string      `json:"name"`
+	Name           pgtype.Text `json:"name"`
 	Geom           interface{} `json:"geom"`
 	GeomGeographic interface{} `json:"geom_geographic"`
 }

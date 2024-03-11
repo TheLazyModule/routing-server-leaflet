@@ -2,44 +2,49 @@ CREATE
 EXTENSION IF NOT EXISTS postgis;
 
 -- Create the 'node' table
-CREATE TABLE "node" (
-                        "id" BIGSERIAL PRIMARY KEY,
-                        "name" VARCHAR NOT NULL UNIQUE,
-                        "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
+CREATE TABLE "node"
+(
+    "id"   BIGSERIAL PRIMARY KEY,
+    "name" VARCHAR               NOT NULL UNIQUE,
+    "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
 );
 
 -- Create the 'edge' table
-CREATE TABLE "edge" (
-                        "id" BIGSERIAL PRIMARY KEY,
-                        "from_node_id" BIGINT NOT NULL,
-                        "to_node_id" BIGINT NOT NULL,
-                        "weight" DOUBLE PRECISION NOT NULL,
-                        CONSTRAINT "fk_from_node_id" FOREIGN KEY ("from_node_id") REFERENCES "node" ("id"),
-                        CONSTRAINT "fk_to_node_id" FOREIGN KEY ("to_node_id") REFERENCES "node" ("id"),
-                        CONSTRAINT "edge_unique_constraint" UNIQUE ("from_node_id", "to_node_id")
+CREATE TABLE "edge"
+(
+    "id"           BIGSERIAL PRIMARY KEY,
+    "from_node_id" BIGINT           NOT NULL,
+    "to_node_id"   BIGINT           NOT NULL,
+    "weight"       DOUBLE PRECISION NOT NULL,
+    CONSTRAINT "fk_from_node_id" FOREIGN KEY ("from_node_id") REFERENCES "node" ("id"),
+    CONSTRAINT "fk_to_node_id" FOREIGN KEY ("to_node_id") REFERENCES "node" ("id"),
+    CONSTRAINT "edge_unique_constraint" UNIQUE ("from_node_id", "to_node_id")
 );
 
 -- Create the 'place' table
-CREATE TABLE "place" (
-                         "id" BIGSERIAL PRIMARY KEY,
-                         "name" VARCHAR NOT NULL,
-                         "geom" GEOMETRY(POINT, 3857)
+CREATE TABLE "place"
+(
+    "id"       BIGSERIAL PRIMARY KEY,
+    "name"     VARCHAR NOT NULL,
+    "location" GEOMETRY(POINT, 3857)
 );
 
 -- Create the 'building' table
-CREATE TABLE "building" (
-                            "id" BIGSERIAL PRIMARY KEY,
-                            "name" VARCHAR NOT NULL,
-                            "geom" GEOMETRY(POLYGON, 3857)
+CREATE TABLE "building"
+(
+    "id"   BIGSERIAL PRIMARY KEY,
+    "name" VARCHAR,
+    "geom" GEOMETRY(POLYGON, 3857)
 );
 
 -- Create the 'classroom.sql' table
-CREATE TABLE "classroom" (
-                             "id" BIGSERIAL PRIMARY KEY,
-                             "building_id" BIGINT NOT NULL,
-                             "room_code" VARCHAR NOT NULL,
-                             CONSTRAINT "fk_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
-                             CONSTRAINT "classroom_unique_constraint" UNIQUE ("building_id", "room_code")
+CREATE TABLE "classroom"
+(
+    "id"          BIGSERIAL PRIMARY KEY,
+    "building_id" BIGINT  NOT NULL,
+    "room_code"   VARCHAR NOT NULL,
+    CONSTRAINT "fk_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
+    CONSTRAINT "classroom_unique_constraint" UNIQUE ("building_id", "room_code")
 );
 
 -- Create indexes for the 'node' table
@@ -51,7 +56,7 @@ CREATE INDEX "idx_edge_weight" ON "edge" ("weight");
 
 -- Create indexes for the 'place' table
 CREATE INDEX "idx_place_name" ON "place" ("name");
-CREATE INDEX "idx_place_geom" ON "place" ("geom");
+CREATE INDEX "idx_place_location" ON "place" ("location");
 
 -- Create indexes for the 'building' table
 CREATE INDEX "idx_building_name" ON "building" ("name");

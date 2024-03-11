@@ -5,13 +5,14 @@
 package db
 
 import (
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/twpayne/go-geom"
 )
 
 type Building struct {
-	ID   int64      `json:"id"`
-	Name string     `json:"name"`
-	Geom geom.Point `json:"geom"`
+	ID   int64       `json:"id"`
+	Name pgtype.Text `json:"name"`
+	Geom geom.Point  `json:"geom"`
 }
 
 type Classroom struct {

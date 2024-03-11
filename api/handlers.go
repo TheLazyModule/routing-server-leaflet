@@ -210,12 +210,12 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		return
 	}
 
-	geomFrom, err := s.store.GetBuildingCentroidGeom(ctx, req.From.String)
+	geomFrom, err := s.store.GetBuildingCentroidGeom(ctx, req.From)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	geomTo, err := s.store.GetBuildingCentroidGeom(ctx, req.To.String)
+	geomTo, err := s.store.GetBuildingCentroidGeom(ctx, req.To)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
