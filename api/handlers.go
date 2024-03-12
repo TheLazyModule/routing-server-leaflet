@@ -102,6 +102,7 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
 	nodesChan := make(chan db.Nodes, 1)
 
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		paths, distance, err := utils.Dijkstra(s.Graph, req.FromNodeID, req.ToNodeID)
@@ -130,11 +131,12 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 }
 
 func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
-	var req db.RouteRequestByPlaceOrBuildingJSON
+	var req db.RouteRequestByPlaceJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	fmt.Println(req)
 	geomFrom, err := s.store.GetPlaceGeom(ctx, req.From.String)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -205,12 +207,13 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 }
 
 func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
-	var req db.RouteRequestByPlaceOrBuildingJSON
-	fmt.Println(req)
+	var req db.RouteRequestByBuildingJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	fmt.Println(req)
 
 	geomFrom, err := s.store.GetBuildingCentroidGeom(ctx, req.From)
 	if err != nil {

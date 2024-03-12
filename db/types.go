@@ -19,7 +19,12 @@ type RouteRequestByID struct {
 	ToNodeID   int64 `json:"to_node_id" binding:"required,min=1"`
 }
 
-type RouteRequestByPlaceOrBuildingJSON struct {
+type RouteRequestByPlaceJSON struct {
+	From pgtype.Text `json:"from" binding:"required"`
+	To   pgtype.Text `json:"to" binding:"required"`
+}
+
+type RouteRequestByBuildingJSON struct {
 	From pgtype.Text `json:"from" binding:"required"`
 	To   pgtype.Text `json:"to" binding:"required"`
 }

@@ -40,3 +40,4 @@ SELECT id,
 FROM node
 ORDER BY geom <-> ST_GEOMFROMTEXT($1, 3857)
 LIMIT 1;
+

@@ -37,7 +37,7 @@ CREATE TABLE "building"
     "geom" GEOMETRY(POLYGON, 3857)
 );
 
--- Create the 'classroom.sql' table
+-- Create the 'classroom' table
 CREATE TABLE "classroom"
 (
     "id"          BIGSERIAL PRIMARY KEY,

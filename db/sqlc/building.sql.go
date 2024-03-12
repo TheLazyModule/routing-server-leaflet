@@ -12,8 +12,8 @@ import (
 )
 
 const getBuildingCentroidGeom = `-- name: GetBuildingCentroidGeom :one
-SELECT ST_CENTROID(geom)                   as building_centroid,
-       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as building_centroid_geographic
+SELECT ST_ASTEXT(ST_CENTROID(geom))                     as building_centroid,
+       ST_ASTEXT(ST_CENTROID(ST_TRANSFORM(geom, 4326))) as building_centroid_geographic
 from building
 where name = $1
 `
@@ -56,7 +56,8 @@ func (q *Queries) GetBuildingNames(ctx context.Context) ([]pgtype.Text, error) {
 }
 
 const listBuildings = `-- name: ListBuildings :many
-SELECT name, ST_ASTEXT(geom) as geom,
+SELECT name,
+       ST_ASTEXT(geom)                     as geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
 from building
 order by id

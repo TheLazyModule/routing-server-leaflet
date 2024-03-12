@@ -65,7 +65,7 @@ export const submitForm = (routeUrl, formID) => {
             APIClient(routeUrl, 'POST', data, result => {
                 spinner.style.display = 'none'; // Hide the spinner
                 // console.log(result);
-                const data = result.paths.map(res => res.point_geom_geographic);
+                const data = result.paths.map(res => res.geom_geographic);
                 const distance = result.distance;
                 console.log(data);
                 drawPath(data, distance);
@@ -134,6 +134,7 @@ function drawPath(data, distance) {
         if (leafletObj.getLatLng) {
             polylineCoordinates.push(leafletObj.getLatLng());
         }
+        // polylineCoordinates.add
 
         // If this is the first marker, fly to its location
         if (index === 0) {
