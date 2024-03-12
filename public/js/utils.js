@@ -39,9 +39,9 @@ L.control.sidepanel('mySidepanelLeft', {
     startTab: 'tab-1'
 }).addTo(map);
 
-L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
     maxZoom: 20,
-    subdomains:['mt0','mt1','mt2','mt3']
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
 }).addTo(map)
 
 // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -134,17 +134,17 @@ function drawPath(data, distance) {
         if (leafletObj.getLatLng) {
             polylineCoordinates.push(leafletObj.getLatLng());
         }
-        // polylineCoordinates.add
+        L.polyline(polylineCoordinates, {color: 'red'}).addTo(map);
 
         // If this is the first marker, fly to its location
         if (index === 0) {
-            map.flyTo(leafletObj.getLatLng(), 15, { duration: 1.5 }); // Adjust zoom level and duration as needed
+            map.flyTo(leafletObj.getLatLng(), 15, {duration: 1.5}); // Adjust zoom level and duration as needed
         }
     });
 
     // Fit the map bounds to all markers after all have been added
     const group = L.featureGroup(markersContainer);
-    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+    map.fitBounds(group.getBounds(), {padding: [50, 50]});
 
     // Display the total distance traveled as a popup on the last marker
     if (polylineCoordinates.length > 0) {
