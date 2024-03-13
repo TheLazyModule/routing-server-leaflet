@@ -115,7 +115,7 @@ export const showAlert = (message, alertType) => {
 
 function drawPath(data, distance) {
     var polylineCoordinates = [];
-    var markerDelay = 650;
+    var markerDelay = 10;
 
     data.forEach((wktStr, index) => {
         // setTimeout(() => {
@@ -125,18 +125,20 @@ function drawPath(data, distance) {
         let latLng = wkt.toObject().getLatLng();
         let leafletObj = L.circleMarker(latLng, {
             radius: 3,
-            fillColor: '#088ce0',
-            color: '#088ce0',
-            weight: 1,
+            fillColor: '#0854e0',
+            color: '#0854E0FF',
+            weight: 2.5,
             opacity: 1,
-            fillOpacity: 0.8
+            fillOpacity: 0.8,
+
         });
-        leafletObj.addTo(map);
-        markersContainer.push(leafletObj);
 
         polylineCoordinates.push(latLng);
+        markersContainer.push(leafletObj);
+        leafletObj.addTo(map);
+        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 5, opacity: 1.0, dashedArray: '2, 2'}).addTo(map);
 
-        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 10, opacity: 0.9, dashedArray: '2, 2'}).addTo(map);
+
 
         if (index === 0) {
             map.flyTo(leafletObj.getLatLng(), 15, {duration: 1.5});
@@ -144,7 +146,7 @@ function drawPath(data, distance) {
         // }, index * markerDelay);
     });
 
-    // setTimeout(() => {
+    setTimeout(() => {
     const group = L.featureGroup(markersContainer);
     map.fitBounds(group.getBounds(), {padding: [50, 50]});
 
@@ -155,5 +157,5 @@ function drawPath(data, distance) {
             .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${distance}m walk</div>`)
             .openOn(map);
     }
-    // }, data.length * markerDelay);
+    }, data.length * markerDelay);
 }
