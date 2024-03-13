@@ -19,7 +19,7 @@ func main() {
 		log.Fatal("Cannot Load configurations")
 	}
 
-	conn, err := pgxpool.New(context.Background(), config.DBSource)
+	conn, err := pgxpool.New(context.Background(), config.DBUrl)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
