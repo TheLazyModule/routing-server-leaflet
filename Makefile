@@ -8,7 +8,7 @@ up-prod:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 down:
-	docker compose down
+	docker compose down -v
 
 server:
 	go run main.go
@@ -22,6 +22,9 @@ createdb:
 
 dropdb:
 	 docker exec -it $(PG_CONTAINER_NAME) dropdb $(PGDATABASE) -f --username=$(PGUSER)
+
+migrate:
+	cd ./geojson-graph/ && python3 main.py && cd ..
 
 migrate_up:
 	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose up
