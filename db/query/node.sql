@@ -10,7 +10,8 @@ SELECT name,
        ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
-WHERE id = ANY ($1);
+WHERE id = ANY ($1)
+ORDER BY ARRAY_POSITION($1, id);
 
 -- name: GetNodeByID :one
 SELECT name,

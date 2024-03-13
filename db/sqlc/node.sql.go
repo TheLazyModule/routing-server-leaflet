@@ -86,6 +86,7 @@ SELECT name,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
 WHERE id = ANY ($1)
+ORDER BY ARRAY_POSITION($1, id)
 `
 
 type GetNodesByIdsRow struct {
