@@ -246,8 +246,6 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 
 	closestNodeFromResult := <-closestNodeFromChan
 	closestNodeToResult := <-closestNodeToChan
-	fmt.Println("------From and To Node------")
-	fmt.Println(closestNodeFromResult, closestNodeToResult)
 
 	if closestNodeFromResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -271,16 +269,14 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("------Dijkstra Result------")
-	fmt.Println(dijkstraResult.Paths)
 	go func() {
 		defer wg.Done()
 		nodes, err := s.store.GetNodesByIds(ctx, dijkstraResult.Paths)
 		nodesChan <- db.Nodes{Nodes: nodes, Err: err}
 	}()
+
 	nodesResult := <-nodesChan
-	fmt.Println("\n\n\n------Nodes Result------")
-	fmt.Println(nodesResult.Nodes)
+
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
