@@ -13,6 +13,7 @@ L.control.zoom({
 }).addTo(map);
 
 const markersContainer = [];
+const polylineCoordinates = [];
 
 function clearMarkers() {
     for (let m of markersContainer) {
@@ -114,7 +115,6 @@ export const showAlert = (message, alertType) => {
 }
 
 function drawPath(data, distance) {
-    var polylineCoordinates = [];
     var markerDelay = 10;
 
     data.forEach((wktStr, index) => {
@@ -125,9 +125,9 @@ function drawPath(data, distance) {
         let latLng = wkt.toObject().getLatLng();
         let leafletObj = L.circleMarker(latLng, {
             radius: 3,
-            fillColor: '#0854e0',
-            color: '#0854E0FF',
-            weight: 2.5,
+            fillColor: '#3889bc',
+            color: '#3889bc',
+            weight: 1.5,
             opacity: 1,
             fillOpacity: 0.8,
 
@@ -136,26 +136,25 @@ function drawPath(data, distance) {
         polylineCoordinates.push(latLng);
         markersContainer.push(leafletObj);
         leafletObj.addTo(map);
-        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 5, opacity: 1.0, dashedArray: '2, 2'}).addTo(map);
-
+        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 1, opacity: 1.0, dashedArray: '2, 2'}).addTo(map);
 
 
         if (index === 0) {
-            map.flyTo(leafletObj.getLatLng(), 15, {duration: 1.5});
+            map.flyTo(leafletObj.getLatLng(), 15, {duration: 1});
         }
         // }, index * markerDelay);
     });
 
     setTimeout(() => {
-    const group = L.featureGroup(markersContainer);
-    map.fitBounds(group.getBounds(), {padding: [50, 50]});
+        const group = L.featureGroup(markersContainer);
+        map.fitBounds(group.getBounds(), {padding: [10, 10]});
 
-    if (polylineCoordinates.length > 0) {
-        var lastPoint = polylineCoordinates[polylineCoordinates.length - 1];
-        var distancePopup = L.popup()
-            .setLatLng(lastPoint)
-            .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${distance}m walk</div>`)
-            .openOn(map);
-    }
+        if (polylineCoordinates.length > 0) {
+            var lastPoint = polylineCoordinates[polylineCoordinates.length - 1];
+            var distancePopup = L.popup()
+                .setLatLng(lastPoint)
+                .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${distance}m walk</div>`)
+                .openOn(map);
+        }
     }, data.length * markerDelay);
 }
