@@ -1,7 +1,6 @@
 version: '3.8'
 services:
   db:
-    container_name: "${PG_CONTAINER_NAME}"
     image: "${IMAGE}"
     environment:
       POSTGRES_USER: "${PGUSER}"
@@ -11,5 +10,15 @@ services:
       - "${PG_PORT_MAPPING}"
     volumes:
       - pgdata:/var/lib/postgresql/data
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL="postgresql://root:integral@db:5433/routes-db?sslmode=disable"
+    volumes:
+      - ./:/app
 volumes:
   pgdata:

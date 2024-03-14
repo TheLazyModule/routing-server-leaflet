@@ -33,12 +33,6 @@ func main() {
 		log.Fatal("Cannot initialize Server")
 	}
 
-	//paths, distance, err := utils.Dijkstra(server.Graph, 150, 700)
-	//if err != nil {
-	//	return
-	//}
-	//fmt.Println(paths, distance)
-
 	err = server.RunServer(config.ServerAddress)
 	if err != nil {
 		log.Fatal("Cannot RunServer Server")
