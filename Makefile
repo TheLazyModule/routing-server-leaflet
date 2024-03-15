@@ -50,4 +50,4 @@ generate:
 	sqlc generate
 
 
-.PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db
+.PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db, server-container

@@ -12,7 +12,7 @@ func (s *Server) ReadGraphIntoMemory(ctx context.Context) error {
 		return err
 	}
 
-	s.Graph = &utils.Graph{}
+	s.Graph = utils.NewGraph()
 	for _, edge := range edges {
 		err := s.Graph.AddEdge(edge.FromNodeID, edge.ToNodeID, edge.Weight)
 		if err != nil {

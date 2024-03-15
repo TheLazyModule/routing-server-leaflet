@@ -53,17 +53,3 @@ func (g *Graph) GetEdges() map[int64]db.Neighbours {
 func (g *Graph) GetWeights() map[db.Edge]float64 {
 	return g.Weights
 }
-
-// AddEdgesFromDB adds Edges from db
-func (g *Graph) AddEdgesFromDB(nodeId int64, neighbors db.Neighbours) error {
-	g.initializeMaps()
-	g.Edges[nodeId] = neighbors
-	return nil
-}
-
-// AddWeightsFromDB adds Weights from db
-func (g *Graph) AddWeightsFromDB(fromNodeID, toNodeID int64, distance float64) error {
-	g.initializeMaps()
-	g.Weights[db.Edge{FromNodeID: fromNodeID, ToNodeID: toNodeID}] = distance
-	return nil
-}
