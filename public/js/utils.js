@@ -13,7 +13,6 @@ L.control.zoom({
 }).addTo(map);
 
 const markersContainer = [];
-const polylineCoordinates = [];
 
 function clearMarkers() {
     for (let m of markersContainer) {
@@ -115,10 +114,12 @@ export const showAlert = (message, alertType) => {
 }
 
 function drawPath(data, distance) {
-    var markerDelay = 10;
+    var markerDelay = 3;
+    const polylineCoordinates = [];
 
     data.forEach((wktStr, index) => {
         // setTimeout(() => {
+
         let wkt = new Wkt.Wkt();
         wkt.read(wktStr);
 
@@ -136,11 +137,11 @@ function drawPath(data, distance) {
         polylineCoordinates.push(latLng);
         markersContainer.push(leafletObj);
         leafletObj.addTo(map);
-        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 1, opacity: 1.0, dashedArray: '2, 2'}).addTo(map);
+        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 8, opacity: 1.0}).addTo(map);
 
 
         if (index === 0) {
-            map.flyTo(leafletObj.getLatLng(), 15, {duration: 1});
+            map.flyTo(leafletObj.getLatLng(), 15, {duration: 100});
         }
         // }, index * markerDelay);
     });
@@ -153,7 +154,7 @@ function drawPath(data, distance) {
             var lastPoint = polylineCoordinates[polylineCoordinates.length - 1];
             var distancePopup = L.popup()
                 .setLatLng(lastPoint)
-                .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${distance}m walk</div>`)
+                .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${parseInt(distance)}m walk</div>`)
                 .openOn(map);
         }
     }, data.length * markerDelay);

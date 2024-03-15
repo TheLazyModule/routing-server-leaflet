@@ -3,6 +3,7 @@ FROM golang:alpine3.19 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o main .
+COPY app.env .
 
 # Run stage
 FROM alpine:3.19
