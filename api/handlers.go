@@ -1,7 +1,7 @@
 package api
 
 import (
-	"fmt"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/db"
@@ -100,10 +100,7 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
 	nodesChan := make(chan db.Nodes, 1)
 
-	go func() {
-		paths, distance, err := utils.Dijkstra(s.Graph, req.FromNodeID, req.ToNodeID)
-		dijkstraResultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}
-	}()
+	go s.calculateShortestPath(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
@@ -111,10 +108,7 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 		return
 	}
 
-	go func() {
-		nodes, err := s.store.GetNodesByIds(ctx, dijkstraResult.Paths)
-		nodesChan <- db.Nodes{Nodes: nodes, Err: err}
-	}()
+	s.getNodesByIds(ctx, dijkstraResult.Paths, nodesChan)
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(nodesResult.Err))
@@ -125,53 +119,44 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 }
 
 func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
-	var req db.RouteRequestByPlaceJSON
+	var req db.RouteRequestByBuildingJSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	fmt.Println(req)
-	geomFrom, err := s.store.GetPlaceGeom(ctx, req.From.String)
+
+	// Use a cancellable context to allow for early termination of the pipeline.
+	pipelineCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Stage 1: Get building centroid geometries.
+	geomFrom, err := s.store.GetPlaceGeom(pipelineCtx, req.From.String)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	geomTo, err := s.store.GetPlaceGeom(ctx, req.To.String)
+	geomTo, err := s.store.GetPlaceGeom(pipelineCtx, req.To.String)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	// Stage 2: Get the closest nodes asynchronously.
 	closestNodeFromChan := make(chan db.ClosestNodeResult, 1)
 	closestNodeToChan := make(chan db.ClosestNodeResult, 1)
-	dijkstraResultChan := make(chan db.DijkstraResult, 1)
-	nodesChan := make(chan db.Nodes, 1)
-
-	go func() {
-		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.Geom)
-		closestNodeFromChan <- db.ClosestNodeResult{Node: closestNodeFrom, Err: err}
-	}()
-	go func() {
-		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.Geom)
-		closestNodeToChan <- db.ClosestNodeResult{Node: closestNodeTo, Err: err}
-	}()
+	go s.getClosestNode(pipelineCtx, geomFrom.Geom, closestNodeFromChan)
+	go s.getClosestNode(pipelineCtx, geomTo.Geom, closestNodeToChan)
 
 	closestNodeFromResult := <-closestNodeFromChan
 	closestNodeToResult := <-closestNodeToChan
-
-	if closestNodeFromResult.Err != nil {
+	if closestNodeFromResult.Err != nil || closestNodeToResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	if closestNodeToResult.Err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	go func() {
-		paths, distance, err := utils.Dijkstra(s.Graph, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID)
-		dijkstraResultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}
-	}()
+	// Stage 3: Calculate the shortest path asynchronously.
+	dijkstraResultChan := make(chan db.DijkstraResult, 1)
+	go s.calculateShortestPath(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
@@ -179,10 +164,10 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 		return
 	}
 
-	go func() {
-		nodes, err := s.store.GetNodesByIds(ctx, dijkstraResult.Paths)
-		nodesChan <- db.Nodes{Nodes: nodes, Err: err}
-	}()
+	// Stage 4: Get nodes by IDs asynchronously.
+	nodesChan := make(chan db.Nodes, 1)
+	go s.getNodesByIds(pipelineCtx, dijkstraResult.Paths, nodesChan)
+
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -199,49 +184,38 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(req)
+	// Use a cancellable context to allow for early termination of the pipeline.
+	pipelineCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-	geomFrom, err := s.store.GetBuildingCentroidGeom(ctx, req.From)
+	// Stage 1: Get building centroid geometries.
+	geomFrom, err := s.store.GetBuildingCentroidGeom(pipelineCtx, req.From)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	geomTo, err := s.store.GetBuildingCentroidGeom(ctx, req.To)
+	geomTo, err := s.store.GetBuildingCentroidGeom(pipelineCtx, req.To)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	// Stage 2: Get the closest nodes asynchronously.
 	closestNodeFromChan := make(chan db.ClosestNodeResult, 1)
 	closestNodeToChan := make(chan db.ClosestNodeResult, 1)
-	dijkstraResultChan := make(chan db.DijkstraResult, 1)
-	nodesChan := make(chan db.Nodes, 1)
-
-	go func() {
-		closestNodeFrom, err := s.store.GetClosestPointToQueryLocation(ctx, geomFrom.BuildingCentroid)
-		closestNodeFromChan <- db.ClosestNodeResult{Node: closestNodeFrom, Err: err}
-	}()
-	go func() {
-		closestNodeTo, err := s.store.GetClosestPointToQueryLocation(ctx, geomTo.BuildingCentroid)
-		closestNodeToChan <- db.ClosestNodeResult{Node: closestNodeTo, Err: err}
-	}()
+	go s.getClosestNode(pipelineCtx, geomFrom.BuildingCentroid, closestNodeFromChan)
+	go s.getClosestNode(pipelineCtx, geomTo.BuildingCentroid, closestNodeToChan)
 
 	closestNodeFromResult := <-closestNodeFromChan
 	closestNodeToResult := <-closestNodeToChan
-
-	if closestNodeFromResult.Err != nil {
+	if closestNodeFromResult.Err != nil || closestNodeToResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	if closestNodeToResult.Err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	go func() {
-		paths, distance, err := utils.Dijkstra(s.Graph, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID)
-		dijkstraResultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}
-	}()
+	// Stage 3: Calculate the shortest path asynchronously.
+	dijkstraResultChan := make(chan db.DijkstraResult, 1)
+	go s.calculateShortestPath(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
@@ -249,17 +223,39 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		return
 	}
 
-	go func() {
-		nodes, err := s.store.GetNodesByIds(ctx, dijkstraResult.Paths)
-		nodesChan <- db.Nodes{Nodes: nodes, Err: err}
-	}()
+	// Stage 4: Get nodes by IDs asynchronously.
+	nodesChan := make(chan db.Nodes, 1)
+	go s.getNodesByIds(pipelineCtx, dijkstraResult.Paths, nodesChan)
 
 	nodesResult := <-nodesChan
-
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
+}
+
+func (s *Server) getClosestNode(ctx context.Context, centroid interface{}, resultChan chan<- db.ClosestNodeResult) {
+	node, err := s.store.GetClosestPointToQueryLocation(ctx, centroid)
+	select {
+	case resultChan <- db.ClosestNodeResult{Node: node, Err: err}:
+	case <-ctx.Done():
+	}
+}
+
+func (s *Server) calculateShortestPath(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
+	paths, distance, err := utils.Dijkstra(s.Graph, fromID, toID)
+	select {
+	case resultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}:
+	case <-ctx.Done():
+	}
+}
+
+func (s *Server) getNodesByIds(ctx context.Context, ids []int64, resultChan chan<- db.Nodes) {
+	nodes, err := s.store.GetNodesByIds(ctx, ids)
+	select {
+	case resultChan <- db.Nodes{Nodes: nodes, Err: err}:
+	case <-ctx.Done():
+	}
 }
