@@ -12,6 +12,18 @@ L.control.zoom({
     position: 'bottomright'
 }).addTo(map);
 
+L.control.sidepanel('mySidepanelLeft', {
+    tabsPosition: 'left',
+    startTab: 'tab-1'
+}).addTo(map);
+
+L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+}).addTo(map);
+
+const clearButton = L.control({position: 'topright'});
+
 const markersContainer = [];
 
 function clearMarkers() {
@@ -19,8 +31,6 @@ function clearMarkers() {
         map.removeLayer(m);
     }
 }
-
-const clearButton = L.control({position: 'topright'});
 
 clearButton.onAdd = () => {
     const div = L.DomUtil.create('div');
@@ -33,15 +43,24 @@ clearButton.onAdd = () => {
 
 clearButton.addTo(map);
 
-L.control.sidepanel('mySidepanelLeft', {
-    tabsPosition: 'left',
-    startTab: 'tab-1'
-}).addTo(map);
 
-L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-    maxZoom: 20,
-    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-}).addTo(map);
+function onMapClick(e) {
+    clearMarkers(); // Clear existing markers
+    const marker = L.marker(e.latlng).addTo(map);
+    markersContainer.push(marker);
+
+    // Set the coordinates in the search bar
+    const searchBarFrom = document.getElementById('searchInputFrom');
+    const searchBarTo = document.getElementById('searchInputFrom2');
+    searchBarFrom.value = 'My Location';
+    searchBarTo.value = 'My Location';
+
+
+    // If you need the coordinates, you can use e.latlng.lat and e.latlng.lng
+    console.log(`Clicked location: Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`);
+}
+
+map.on('click', onMapClick);
 
 export const submitForm = (routeUrl, formID) => {
     document.addEventListener('DOMContentLoaded', () => {
@@ -128,7 +147,7 @@ function drawPath(data, distance) {
             radius: 3,
             fillColor: '#3889bc',
             color: '#3889bc',
-            weight: 1.5,
+            weight: 0.5,
             opacity: 1,
             fillOpacity: 0.8,
 
@@ -137,7 +156,11 @@ function drawPath(data, distance) {
         polylineCoordinates.push(latLng);
         markersContainer.push(leafletObj);
         leafletObj.addTo(map);
-        L.polyline(polylineCoordinates, {color: '#3889bc', weight: 8, opacity: 1.0}).addTo(map);
+        const options = {color: '#198754', weight: 2}
+        // L.polyline(polylineCoordinates, options ).addTo(map);
+        let antPolyline = new L.Polyline.AntPath(polylineCoordinates, options);
+
+        antPolyline.addTo(map);
 
 
         if (index === 0) {

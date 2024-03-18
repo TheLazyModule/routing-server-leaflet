@@ -82,7 +82,6 @@ func (s *Server) GetNodeByID(ctx *gin.Context) {
 
 func (s *Server) GetEdges(ctx *gin.Context) {
 	edges, err := s.store.ListEdges(ctx)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -108,7 +107,7 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 		return
 	}
 
-	s.getNodesByIds(ctx, dijkstraResult.Paths, nodesChan)
+	go s.getNodesByIds(ctx, dijkstraResult.Paths, nodesChan)
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(nodesResult.Err))
@@ -232,11 +231,31 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
 }
 
+//func (s *Server) GetPlaceByNameOrGeom(ctx *gin.Context) {
+//	var req db.PlaceOrGeomRequest
+//	err := ctx.ShouldBindJSON(&req)
+//	if err != nil {
+//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+//		return
+//	}
+//	fmt.Println(req)
+//	arg := db2.GetPlaceByNameOrGeomParams{
+//		Name:           req.Name,
+//		StGeomfromtext: req.Geom,
+//	}
+//	placeOrgeom, err := s.store.GetPlaceByNameOrGeom(ctx, arg)
+//	if err != nil {
+//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+//		return
+//	}
+//
+//}
+
 func (s *Server) getClosestNode(ctx context.Context, centroid interface{}, resultChan chan<- db.ClosestNodeResult) {
+	defer close(resultChan)
 	node, err := s.store.GetClosestPointToQueryLocation(ctx, centroid)
 	select {
 	case resultChan <- db.ClosestNodeResult{Node: node, Err: err}:
@@ -245,6 +264,7 @@ func (s *Server) getClosestNode(ctx context.Context, centroid interface{}, resul
 }
 
 func (s *Server) calculateShortestPath(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
+	defer close(resultChan)
 	paths, distance, err := utils.Dijkstra(s.Graph, fromID, toID)
 	select {
 	case resultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}:
@@ -253,6 +273,7 @@ func (s *Server) calculateShortestPath(ctx context.Context, fromID, toID int64, 
 }
 
 func (s *Server) getNodesByIds(ctx context.Context, ids []int64, resultChan chan<- db.Nodes) {
+	defer close(resultChan)
 	nodes, err := s.store.GetNodesByIds(ctx, ids)
 	select {
 	case resultChan <- db.Nodes{Nodes: nodes, Err: err}:

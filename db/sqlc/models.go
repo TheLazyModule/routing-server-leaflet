@@ -35,7 +35,7 @@ type Node struct {
 }
 
 type Place struct {
-	ID       int64      `json:"id"`
-	Name     string     `json:"name"`
-	Location geom.Point `json:"location"`
+	ID   int64      `json:"id"`
+	Name string     `json:"name"`
+	Geom geom.Point `json:"geom"`
 }

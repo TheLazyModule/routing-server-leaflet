@@ -30,6 +30,34 @@ func (q *Queries) GetPlace(ctx context.Context, name string) (GetPlaceRow, error
 	return i, err
 }
 
+const getPlaceByNameOrGeom = `-- name: GetPlaceByNameOrGeom :one
+select name            as placeName,
+       st_astext(geom) as PlaceGeom
+from place
+where place.name = $1
+   or place.geom = (select geom as Geom
+                    from place
+                    order by geom <-> st_geomfromtext($2, 3857)
+                    limit 1)
+`
+
+type GetPlaceByNameOrGeomParams struct {
+	Name           string      `json:"name"`
+	StGeomfromtext interface{} `json:"st_geomfromtext"`
+}
+
+type GetPlaceByNameOrGeomRow struct {
+	Placename string      `json:"placename"`
+	Placegeom interface{} `json:"placegeom"`
+}
+
+func (q *Queries) GetPlaceByNameOrGeom(ctx context.Context, arg GetPlaceByNameOrGeomParams) (GetPlaceByNameOrGeomRow, error) {
+	row := q.db.QueryRow(ctx, getPlaceByNameOrGeom, arg.Name, arg.StGeomfromtext)
+	var i GetPlaceByNameOrGeomRow
+	err := row.Scan(&i.Placename, &i.Placegeom)
+	return i, err
+}
+
 const getPlaceGeom = `-- name: GetPlaceGeom :one
 SELECT ST_ASTEXT(geom)                     as geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic

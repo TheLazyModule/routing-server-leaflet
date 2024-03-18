@@ -24,6 +24,11 @@ type RouteRequestByPlaceJSON struct {
 	To   pgtype.Text `json:"to" binding:"required"`
 }
 
+type PlaceOrGeomRequest struct {
+	Name string      `json:"name"`
+	Geom interface{} `json:"geom"`
+}
+
 type RouteRequestByBuildingJSON struct {
 	From pgtype.Text `json:"from" binding:"required"`
 	To   pgtype.Text `json:"to" binding:"required"`
