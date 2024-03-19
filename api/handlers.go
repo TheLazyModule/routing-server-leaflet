@@ -194,10 +194,6 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		return
 	}
 
-	if geomFrom == (GetBuildingCentroidGeomRow{}) {
-
-	}
-
 	geomTo, err := s.store.GetBuildingCentroidGeom(pipelineCtx, req.To)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
