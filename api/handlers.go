@@ -193,6 +193,11 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	if geomFrom == (GetBuildingCentroidGeomRow{}) {
+
+	}
+
 	geomTo, err := s.store.GetBuildingCentroidGeom(pipelineCtx, req.To)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -233,26 +238,6 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
 }
-
-//func (s *Server) GetPlaceByNameOrGeom(ctx *gin.Context) {
-//	var req db.PlaceOrGeomRequest
-//	err := ctx.ShouldBindJSON(&req)
-//	if err != nil {
-//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-//		return
-//	}
-//	fmt.Println(req)
-//	arg := db2.GetPlaceByNameOrGeomParams{
-//		Name:           req.Name,
-//		StGeomfromtext: req.Geom,
-//	}
-//	placeOrgeom, err := s.store.GetPlaceByNameOrGeom(ctx, arg)
-//	if err != nil {
-//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-//		return
-//	}
-//
-//}
 
 func (s *Server) getClosestNode(ctx context.Context, centroid interface{}, resultChan chan<- db.ClosestNodeResult) {
 	defer close(resultChan)
