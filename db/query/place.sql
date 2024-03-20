@@ -26,5 +26,5 @@ from place
 where place.name = $1
    or place.geom = (select geom as Geom
                     from place
-                    order by geom <-> st_geomfromtext($2, 3857)
+                    order by geom <-> st_geomfromtext($1, 3857)
                     limit 1);

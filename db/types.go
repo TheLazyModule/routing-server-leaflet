@@ -45,6 +45,16 @@ type DijkstraResult struct {
 	Err      error
 }
 
+type PlacesResult struct {
+	Places []db.ListPlacesRow
+	Err    error
+}
+
+type BuildingResult struct {
+	Building []db.ListBuildingsRow
+	Err      error
+}
+
 type Nodes struct {
 	Nodes []db.GetNodesByIdsRow
 	Err   error

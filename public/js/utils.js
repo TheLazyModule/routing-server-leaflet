@@ -119,25 +119,11 @@ export const searchFilter = (searchInputID, dropdownListID, data) => {
     });
 }
 
-export const showAlert = (message, alertType) => {
-    const alertDiv = document.createElement('div');
-    alertDiv.classList.add('alert', `alert-${alertType}`, 'alert-dismissible', 'fade', 'show');
-    alertDiv.setAttribute('role', 'alert');
-
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-
-    document.body.appendChild(alertDiv);
-}
 
 function drawPath(data, distance) {
-    var markerDelay = 3;
     const polylineCoordinates = [];
 
     data.forEach((wktStr, index) => {
-        // setTimeout(() => {
 
         let wkt = new Wkt.Wkt();
         wkt.read(wktStr);
@@ -166,19 +152,16 @@ function drawPath(data, distance) {
         if (index === 0) {
             map.flyTo(leafletObj.getLatLng(), 15, {duration: 100});
         }
-        // }, index * markerDelay);
     });
 
-    setTimeout(() => {
-        const group = L.featureGroup(markersContainer);
-        map.fitBounds(group.getBounds(), {padding: [10, 10]});
+    const group = L.featureGroup(markersContainer);
+    map.fitBounds(group.getBounds(), {padding: [10, 10]});
 
-        if (polylineCoordinates.length > 0) {
-            var lastPoint = polylineCoordinates[polylineCoordinates.length - 1];
-            var distancePopup = L.popup()
-                .setLatLng(lastPoint)
-                .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${parseInt(distance)}m walk</div>`)
-                .openOn(map);
-        }
-    }, data.length * markerDelay);
+    if (polylineCoordinates.length > 0) {
+        var lastPoint = polylineCoordinates[polylineCoordinates.length - 1];
+        var distancePopup = L.popup()
+            .setLatLng(lastPoint)
+            .setContent(`<div style="font-size: 16px; font-weight: bold; color: #333;">Approximately ${parseInt(distance)}m walk</div>`)
+            .openOn(map);
+    }
 }

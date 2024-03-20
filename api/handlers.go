@@ -21,13 +21,40 @@ func (s *Server) GetPlaces(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, places)
 }
 
+func (s *Server) GetPlacesAndBuildings(ctx *gin.Context) {
+
+	pipelineCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Get places and buildings asynchronously.
+	placesChan := make(chan db.PlacesResult, 1)
+	go s.getPlacesWorker(pipelineCtx, placesChan)
+
+	buildingsChan := make(chan db.BuildingResult, 1)
+	go s.getBuildingsWorker(pipelineCtx, buildingsChan)
+
+	placesResult := <-placesChan
+	if err := placesResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	buildingsResult := <-buildingsChan
+	if err := buildingsResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"places": placesResult.Places, "buildings": buildingsResult.Building})
+}
+
 func (s *Server) GetBuildings(ctx *gin.Context) {
-	nodes, err := s.store.ListBuildings(ctx)
+	buildings, err := s.store.ListBuildings(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, nodes)
+	ctx.JSON(http.StatusOK, buildings)
 }
 
 func (s *Server) GetNodes(ctx *gin.Context) {
@@ -99,7 +126,7 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
 	nodesChan := make(chan db.Nodes, 1)
 
-	go s.calculateShortestPath(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
+	go s.calculateShortestPathWorker(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
@@ -107,7 +134,7 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 		return
 	}
 
-	go s.getNodesByIds(ctx, dijkstraResult.Paths, nodesChan)
+	go s.getNodesByIdsWorker(ctx, dijkstraResult.Paths, nodesChan)
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(nodesResult.Err))
@@ -148,14 +175,19 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 
 	closestNodeFromResult := <-closestNodeFromChan
 	closestNodeToResult := <-closestNodeToChan
-	if closestNodeFromResult.Err != nil || closestNodeToResult.Err != nil {
+	if err = closestNodeFromResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = closestNodeToResult.Err; err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	// Stage 3: Calculate the shortest path asynchronously.
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
-	go s.calculateShortestPath(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
+	go s.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
@@ -165,7 +197,7 @@ func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {
 
 	// Stage 4: Get nodes by IDs asynchronously.
 	nodesChan := make(chan db.Nodes, 1)
-	go s.getNodesByIds(pipelineCtx, dijkstraResult.Paths, nodesChan)
+	go s.getNodesByIdsWorker(pipelineCtx, dijkstraResult.Paths, nodesChan)
 
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
@@ -208,14 +240,19 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 
 	closestNodeFromResult := <-closestNodeFromChan
 	closestNodeToResult := <-closestNodeToChan
-	if closestNodeFromResult.Err != nil || closestNodeToResult.Err != nil {
+	if err = closestNodeFromResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = closestNodeToResult.Err; err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	// Stage 3: Calculate the shortest path asynchronously.
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
-	go s.calculateShortestPath(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
+	go s.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
@@ -225,7 +262,7 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 
 	// Stage 4: Get nodes by IDs asynchronously.
 	nodesChan := make(chan db.Nodes, 1)
-	go s.getNodesByIds(pipelineCtx, dijkstraResult.Paths, nodesChan)
+	go s.getNodesByIdsWorker(pipelineCtx, dijkstraResult.Paths, nodesChan)
 
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
@@ -244,7 +281,7 @@ func (s *Server) getClosestNode(ctx context.Context, centroid interface{}, resul
 	}
 }
 
-func (s *Server) calculateShortestPath(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
+func (s *Server) calculateShortestPathWorker(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
 	defer close(resultChan)
 	paths, distance, err := utils.Dijkstra(s.Graph, fromID, toID)
 	select {
@@ -253,11 +290,27 @@ func (s *Server) calculateShortestPath(ctx context.Context, fromID, toID int64, 
 	}
 }
 
-func (s *Server) getNodesByIds(ctx context.Context, ids []int64, resultChan chan<- db.Nodes) {
+func (s *Server) getNodesByIdsWorker(ctx context.Context, ids []int64, resultChan chan<- db.Nodes) {
 	defer close(resultChan)
 	nodes, err := s.store.GetNodesByIds(ctx, ids)
 	select {
 	case resultChan <- db.Nodes{Nodes: nodes, Err: err}:
+	case <-ctx.Done():
+	}
+}
+
+func (s *Server) getBuildingsWorker(ctx context.Context, buildingResult chan<- db.BuildingResult) {
+	building, err := s.store.ListBuildings(ctx)
+	select {
+	case buildingResult <- db.BuildingResult{Building: building, Err: err}:
+	case <-ctx.Done():
+	}
+}
+
+func (s *Server) getPlacesWorker(ctx context.Context, placesResult chan<- db.PlacesResult) {
+	places, err := s.store.ListPlaces(ctx)
+	select {
+	case placesResult <- db.PlacesResult{Places: places, Err: err}:
 	case <-ctx.Done():
 	}
 }

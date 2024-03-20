@@ -1,5 +1,5 @@
 import APIClient from "./apiClient.js";
-import {searchFilter, showAlert, submitForm} from "./utils.js";
+import {searchFilter, submitForm} from "./utils.js";
 
 
 APIClient('/places', 'GET', '', result => {
@@ -27,6 +27,19 @@ APIClient('/buildings', 'GET', '', result => {
 }, error => {
     if (error)
         throw new Error(error.message)
+})
+
+APIClient('/all', 'GET', '', result => {
+    let places = result.places.filter(res => {
+        return res.name !== null
+    })
+
+    let buildings = result.buildings.filter(res => {
+        return res.name !== null
+    })
+
+
+}, resError => {
 })
 
 submitForm('/buildings/route', 'form')
