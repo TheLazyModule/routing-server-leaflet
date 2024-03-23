@@ -34,6 +34,11 @@ type RouteRequestByBuildingJSON struct {
 	To   pgtype.Text `json:"to" binding:"required"`
 }
 
+type RouteRequestByBuildingOrPlace struct {
+	From pgtype.Text `json:"from" binding:"required"`
+	To   pgtype.Text `json:"to" binding:"required"`
+}
+
 type ClosestNodeResult struct {
 	Node db.GetClosestPointToQueryLocationRow
 	Err  error

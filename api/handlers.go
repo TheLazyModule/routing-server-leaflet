@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/db"
@@ -22,7 +23,6 @@ func (s *Server) GetPlaces(ctx *gin.Context) {
 }
 
 func (s *Server) GetPlacesAndBuildings(ctx *gin.Context) {
-
 	pipelineCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -138,6 +138,71 @@ func (s *Server) GetShortestRouteByNodes(ctx *gin.Context) {
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(nodesResult.Err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
+}
+
+func (s *Server) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
+	var req db.RouteRequestByBuildingOrPlace
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// Use a cancellable context to allow for early termination of the pipeline.
+	pipelineCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Stage 1: Get building centroid geometries.
+	geomFrom, err := s.store.GetBuildingOrPlace(pipelineCtx, req.From.String)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	fmt.Println(geomFrom)
+	geomTo, err := s.store.GetBuildingOrPlace(pipelineCtx, req.To.String)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Stage 2: Get the closest nodes asynchronously.
+	closestNodeFromChan := make(chan db.ClosestNodeResult, 1)
+	closestNodeToChan := make(chan db.ClosestNodeResult, 1)
+	go s.getClosestNode(pipelineCtx, geomFrom.Geom, closestNodeFromChan)
+	go s.getClosestNode(pipelineCtx, geomTo.Geom, closestNodeToChan)
+
+	closestNodeFromResult := <-closestNodeFromChan
+	closestNodeToResult := <-closestNodeToChan
+	if err = closestNodeFromResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = closestNodeToResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Stage 3: Calculate the shortest path asynchronously.
+	dijkstraResultChan := make(chan db.DijkstraResult, 1)
+	go s.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
+
+	dijkstraResult := <-dijkstraResultChan
+	if dijkstraResult.Err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(dijkstraResult.Err))
+		return
+	}
+
+	// Stage 4: Get nodes by IDs asynchronously.
+	nodesChan := make(chan db.Nodes, 1)
+	go s.getNodesByIdsWorker(pipelineCtx, dijkstraResult.Paths, nodesChan)
+
+	nodesResult := <-nodesChan
+	if nodesResult.Err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -300,6 +365,7 @@ func (s *Server) getNodesByIdsWorker(ctx context.Context, ids []int64, resultCha
 }
 
 func (s *Server) getBuildingsWorker(ctx context.Context, buildingResult chan<- db.BuildingResult) {
+	defer close(buildingResult)
 	building, err := s.store.ListBuildings(ctx)
 	select {
 	case buildingResult <- db.BuildingResult{Building: building, Err: err}:
@@ -308,6 +374,7 @@ func (s *Server) getBuildingsWorker(ctx context.Context, buildingResult chan<- d
 }
 
 func (s *Server) getPlacesWorker(ctx context.Context, placesResult chan<- db.PlacesResult) {
+	defer close(placesResult)
 	places, err := s.store.ListPlaces(ctx)
 	select {
 	case placesResult <- db.PlacesResult{Places: places, Err: err}:

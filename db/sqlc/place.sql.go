@@ -9,6 +9,34 @@ import (
 	"context"
 )
 
+const getBuildingOrPlace = `-- name: GetBuildingOrPlace :one
+WITH Combined AS (
+    SELECT name, st_astext(geom) as geom
+    FROM place
+    WHERE place.name = $1
+
+    UNION
+
+    SELECT name, st_astext(geom) as geom
+    FROM building
+    WHERE building.name = $1
+)
+SELECT name, geom
+FROM Combined
+`
+
+type GetBuildingOrPlaceRow struct {
+	Name string      `json:"name"`
+	Geom interface{} `json:"geom"`
+}
+
+func (q *Queries) GetBuildingOrPlace(ctx context.Context, name string) (GetBuildingOrPlaceRow, error) {
+	row := q.db.QueryRow(ctx, getBuildingOrPlace, name)
+	var i GetBuildingOrPlaceRow
+	err := row.Scan(&i.Name, &i.Geom)
+	return i, err
+}
+
 const getPlace = `-- name: GetPlace :one
 SELECT name,
        ST_ASTEXT(geom)                     as geom,
@@ -27,34 +55,6 @@ func (q *Queries) GetPlace(ctx context.Context, name string) (GetPlaceRow, error
 	row := q.db.QueryRow(ctx, getPlace, name)
 	var i GetPlaceRow
 	err := row.Scan(&i.Name, &i.Geom, &i.GeomGeographic)
-	return i, err
-}
-
-const getPlaceByNameOrGeom = `-- name: GetPlaceByNameOrGeom :one
-select name            as placeName,
-       st_astext(geom) as PlaceGeom
-from place
-where place.name = $1
-   or place.geom = (select geom as Geom
-                    from place
-                    order by geom <-> st_geomfromtext($2, 3857)
-                    limit 1)
-`
-
-type GetPlaceByNameOrGeomParams struct {
-	Name           string      `json:"name"`
-	StGeomfromtext interface{} `json:"st_geomfromtext"`
-}
-
-type GetPlaceByNameOrGeomRow struct {
-	Placename string      `json:"placename"`
-	Placegeom interface{} `json:"placegeom"`
-}
-
-func (q *Queries) GetPlaceByNameOrGeom(ctx context.Context, arg GetPlaceByNameOrGeomParams) (GetPlaceByNameOrGeomRow, error) {
-	row := q.db.QueryRow(ctx, getPlaceByNameOrGeom, arg.Name, arg.StGeomfromtext)
-	var i GetPlaceByNameOrGeomRow
-	err := row.Scan(&i.Placename, &i.Placegeom)
 	return i, err
 }
 

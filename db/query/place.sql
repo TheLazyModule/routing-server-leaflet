@@ -19,12 +19,20 @@ SELECT ST_ASTEXT(geom)                     as geom,
 from place
 where name = $1;
 
--- name: GetPlaceByNameOrGeom :one
-select name            as placeName,
-       st_astext(geom) as PlaceGeom
-from place
-where place.name = $1
-   or place.geom = (select geom as Geom
-                    from place
-                    order by geom <-> st_geomfromtext($1, 3857)
-                    limit 1);
+-- name: GetBuildingOrPlace :one
+WITH Combined AS (
+    SELECT name, st_astext(geom) as geom
+    FROM place
+    WHERE place.name = $1
+
+    UNION
+
+    SELECT name, st_astext(geom) as geom
+    FROM building
+    WHERE building.name = $1
+)
+SELECT name, geom
+FROM Combined;
+
+
+
