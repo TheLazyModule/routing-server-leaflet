@@ -14,11 +14,11 @@ APIClient('/all', 'GET', '', result => {
     const data = [...places.map(res => res.name), ...buildings.map(res => res.name)]
 
     searchFilter("searchInputFrom", "dropdownListFrom", data)
+    searchFilter("searchInputTo", "dropdownListTo", data)
 
 }, resError => {
 })
 
-// submitForm('/buildings/route', 'form')
-// submitForm('/places/route', 'form2')
+submitForm('/all/route', 'form')
 
 

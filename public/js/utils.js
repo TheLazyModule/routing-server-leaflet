@@ -142,7 +142,11 @@ function drawPath(data, distance) {
         polylineCoordinates.push(latLng);
         markersContainer.push(leafletObj);
         leafletObj.addTo(map);
-        const options = {color: '#198754', weight: 2}
+        const options = {
+            color: '#198754',
+            weight: 2,
+            delay: "800"
+        }
         // L.polyline(polylineCoordinates, options ).addTo(map);
         let antPolyline = new L.Polyline.AntPath(polylineCoordinates, options);
 
