@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/db"
@@ -161,7 +160,6 @@ func (s *Server) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	fmt.Println(geomFrom)
 	geomTo, err := s.store.GetBuildingOrPlace(pipelineCtx, req.To.String)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

@@ -1,8 +1,8 @@
-import APIClient from "./apiClient.js";
-import {searchFilter, submitForm} from "./utils.js";
+import ApiClient from "./apiClient.js";
+import {onSubmitForm, searchFilter} from "./utils.js";
 
 
-APIClient('/all', 'GET', '', result => {
+ApiClient('/all', 'GET', '', result => {
     let places = result.places.filter(res => {
         return res.name !== null
     })
@@ -19,6 +19,6 @@ APIClient('/all', 'GET', '', result => {
 }, resError => {
 })
 
-submitForm('/all/route', 'form')
+onSubmitForm('/all/route', 'form')
 
 

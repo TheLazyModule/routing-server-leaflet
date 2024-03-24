@@ -23,12 +23,18 @@ L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 }).addTo(map);
 
 const clearButton = L.control({position: 'topright'});
-
 const markersContainer = [];
+let polyline = null;
 
 function clearMarkers() {
     for (let m of markersContainer) {
         map.removeLayer(m);
+    }
+    markersContainer.length = 0; // Clear the array of markers
+
+    if (polyline) {
+        map.removeLayer(polyline); // Remove the polyline from the map
+        polyline = null; // Reset the polyline variable
     }
 }
 
@@ -43,7 +49,6 @@ clearButton.onAdd = () => {
 
 clearButton.addTo(map);
 
-
 function onMapClick(e) {
     clearMarkers(); // Clear existing markers
     const marker = L.marker(e.latlng).addTo(map);
@@ -55,14 +60,13 @@ function onMapClick(e) {
     searchBarFrom.value = 'My Location';
     searchBarTo.value = 'My Location';
 
-
     // If you need the coordinates, you can use e.latlng.lat and e.latlng.lng
     console.log(`Clicked location: Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`);
 }
 
 map.on('click', onMapClick);
 
-export const submitForm = (routeUrl, formID) => {
+export const onSubmitForm = (routeUrl, formID) => {
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById(formID);
         const spinner = document.getElementById('spinner');
@@ -117,14 +121,12 @@ export const searchFilter = (searchInputID, dropdownListID, data) => {
             dropdownList.classList.add("show");
         }
     });
-}
-
+};
 
 function drawPath(data, distance) {
     const polylineCoordinates = [];
 
     data.forEach((wktStr, index) => {
-
         let wkt = new Wkt.Wkt();
         wkt.read(wktStr);
 
@@ -136,27 +138,24 @@ function drawPath(data, distance) {
             weight: 0.5,
             opacity: 1,
             fillOpacity: 0.8,
-
         });
 
         polylineCoordinates.push(latLng);
         markersContainer.push(leafletObj);
         leafletObj.addTo(map);
-        const options = {
-            color: '#198754',
-            weight: 2,
-            delay: "800"
-        }
-        // L.polyline(polylineCoordinates, options ).addTo(map);
-        let antPolyline = new L.Polyline.AntPath(polylineCoordinates, options);
-
-        antPolyline.addTo(map);
-
 
         if (index === 0) {
             map.flyTo(leafletObj.getLatLng(), 15, {duration: 100});
         }
     });
+
+    if (polyline) {
+        map.removeLayer(polyline); // Remove the existing polyline if it exists
+    }
+
+    const options = {color: '#198754', weight: 2, delay: "1000"};
+    polyline = new L.Polyline.AntPath(polylineCoordinates, options);
+    polyline.addTo(map);
 
     const group = L.featureGroup(markersContainer);
     map.fitBounds(group.getBounds(), {padding: [10, 10]});
