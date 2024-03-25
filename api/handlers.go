@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/db"
+	"time"
 )
 
 const UserLocation = "My Location"
@@ -162,11 +163,11 @@ func (s *Server) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 	defer cancel()
 
 	closestNodeFromChan := make(chan db.ClosestNodeResult, 1)
-	closestNodeToUserLocationChan := make(chan db.ClosestNodeResultToUserLocation, 1)
+	closestNodeFromUserLocationChan := make(chan db.ClosestNodeToUserLocationResult, 1)
 
 	if req.From.String == UserLocation {
 		// -->
-		go s.getClosestNodeByLatLngGeom(pipelineCtx, req.FromLocation, closestNodeToUserLocationChan)
+		go s.getClosestNodeByUserLocationGeom(pipelineCtx, req.FromLocation, closestNodeFromUserLocationChan)
 	} else {
 
 		geomFrom, err := s.store.GetBuildingOrPlace(pipelineCtx, req.From.String)
@@ -189,9 +190,12 @@ func (s *Server) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 	// -->
 	go s.getClosestNode(pipelineCtx, geomTo.Geom, closestNodeToChan)
 
+	timeout := 10 * time.Second
 	select {
-
-	case closestNodeFromUserLocationResult := <-closestNodeToUserLocationChan:
+	case <-time.After(timeout):
+		ctx.JSON(http.StatusRequestTimeout, gin.H{"error": "Request timed out"})
+		return
+	case closestNodeFromUserLocationResult := <-closestNodeFromUserLocationChan:
 		if closestNodeFromUserLocationResult.Err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
@@ -226,6 +230,7 @@ func (s *Server) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
+		return
 	case closestNodeFromResult := <-closestNodeFromChan:
 		if closestNodeFromResult.Err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -260,9 +265,8 @@ func (s *Server) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})
+		return
 	}
-
-	return
 }
 
 func (s *Server) GetShortestRouteByPlace(ctx *gin.Context) {

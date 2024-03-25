@@ -58,9 +58,7 @@ function onMapClick(e) {
 
     // Set the coordinates in the search bar
     const searchBarFrom = document.getElementById('searchInputFrom');
-    const searchBarTo = document.getElementById('searchInputFrom2');
     searchBarFrom.value = 'My Location';
-    searchBarTo.value = 'My Location';
 
     // If you need the coordinates, you can use e.latlng.lat and e.latlng.lng
     console.log(`Clicked location: Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`);
@@ -83,8 +81,10 @@ export const onSubmitForm = (routeUrl, formID) => {
 
             const formData = new FormData(form);
             const jsonData = Object.fromEntries(formData.entries());
-            if (jsonData.from === "My Location")
+            if (jsonData.from === "My Location"){
                 jsonData.from_location = `POINT(${userX} ${userY})`
+                console.log(jsonData)
+            }
 
             const data = JSON.stringify(jsonData);
 

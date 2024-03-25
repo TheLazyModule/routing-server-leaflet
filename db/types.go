@@ -48,7 +48,7 @@ type ClosestNodeResult struct {
 	Err  error
 }
 
-type ClosestNodeResultToUserLocation struct {
+type ClosestNodeToUserLocationResult struct {
 	Node db.GetClosestPointToQueryLocationByLatLngGeomRow
 	Err  error
 }

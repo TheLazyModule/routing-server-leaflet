@@ -15,11 +15,11 @@ func (s *Server) getClosestNode(ctx context.Context, centroid interface{}, resul
 	}
 }
 
-func (s *Server) getClosestNodeByLatLngGeom(ctx context.Context, centroid interface{}, resultChan chan<- db.ClosestNodeResultToUserLocation) {
+func (s *Server) getClosestNodeByUserLocationGeom(ctx context.Context, centroid interface{}, resultChan chan<- db.ClosestNodeToUserLocationResult) {
 	defer close(resultChan)
 	node, err := s.store.GetClosestPointToQueryLocationByLatLngGeom(ctx, centroid)
 	select {
-	case resultChan <- db.ClosestNodeResultToUserLocation{Node: node, Err: err}:
+	case resultChan <- db.ClosestNodeToUserLocationResult{Node: node, Err: err}:
 	case <-ctx.Done():
 	}
 }
