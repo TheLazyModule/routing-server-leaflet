@@ -1,4 +1,0 @@
-geopandas~=0.13.0
-psycopg2~=2.8.6
-shapely~=2.0.1
-setuptools~=45.2.0
