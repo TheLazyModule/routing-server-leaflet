@@ -1,4 +1,4 @@
-import APIClient from "./apiClient.js";
+import ApiClient from "./apiClient.js";
 
 export const map = L.map('map', {
     zoomControl: false
@@ -42,7 +42,7 @@ function clearMarkers() {
 
 clearButton.onAdd = () => {
     const div = L.DomUtil.create('div');
-    div.innerHTML = '<button class="btn btn-danger clear-button">Clear Markers</button>';
+    div.innerHTML = '<button class="btn btn-danger clear-button">Clear</button>';
 
     div.querySelector('.clear-button').addEventListener('click', clearMarkers);
 
@@ -81,19 +81,19 @@ export const onSubmitForm = (routeUrl, formID) => {
 
             const formData = new FormData(form);
             const jsonData = Object.fromEntries(formData.entries());
-            if (jsonData.from === "My Location"){
+            if (jsonData.from === "My Location") {
                 jsonData.from_location = `POINT(${userX} ${userY})`
-                console.log(jsonData)
             }
 
             const data = JSON.stringify(jsonData);
 
-            APIClient(routeUrl, 'POST', data, result => {
-                spinner.style.display = 'none';
-                const data = result.paths.map(res => res.geom_geographic);
-                const distance = result.distance;
-                drawPath(data, distance);
-            });
+            ApiClient(routeUrl, 'POST', data, result => {
+                    spinner.style.display = 'none';
+                    const data = result.paths.map(res => res.geom_geographic);
+                    const distance = result.distance;
+                    drawPath(data, distance);
+                },
+                error => console.log(error));
         });
     });
 };

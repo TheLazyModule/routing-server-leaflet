@@ -17,6 +17,7 @@ ApiClient('/all', 'GET', '', result => {
     searchFilter("searchInputTo", "dropdownListTo", data)
 
 }, resError => {
+    console.log(resError)
 })
 
 onSubmitForm('/all/route', 'form')
