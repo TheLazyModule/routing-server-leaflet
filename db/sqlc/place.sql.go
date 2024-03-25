@@ -9,34 +9,6 @@ import (
 	"context"
 )
 
-const getBuildingOrPlace = `-- name: GetBuildingOrPlace :one
-WITH Combined AS (
-    SELECT name, st_astext(geom) as geom
-    FROM place
-    WHERE place.name = $1
-
-    UNION
-
-    SELECT name, st_astext(geom) as geom
-    FROM building
-    WHERE building.name = $1
-)
-SELECT name, geom
-FROM Combined
-`
-
-type GetBuildingOrPlaceRow struct {
-	Name string      `json:"name"`
-	Geom interface{} `json:"geom"`
-}
-
-func (q *Queries) GetBuildingOrPlace(ctx context.Context, name string) (GetBuildingOrPlaceRow, error) {
-	row := q.db.QueryRow(ctx, getBuildingOrPlace, name)
-	var i GetBuildingOrPlaceRow
-	err := row.Scan(&i.Name, &i.Geom)
-	return i, err
-}
-
 const getPlace = `-- name: GetPlace :one
 SELECT name,
        ST_ASTEXT(geom)                     as geom,

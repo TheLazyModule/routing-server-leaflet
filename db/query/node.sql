@@ -36,8 +36,7 @@ FROM node;
 -- name: GetClosestPointToQueryLocation :one
 SELECT id,
        name,
-       ST_ASTEXT(geom)                     AS closest_geom,
-       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS closest_geom_geographic
+       ST_ASTEXT(geom) AS closest_geom
 FROM node
 ORDER BY geom <-> ST_GEOMFROMTEXT($1, 3857)
 LIMIT 1;

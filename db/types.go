@@ -5,11 +5,6 @@ import (
 	db "routing/db/sqlc"
 )
 
-type routeRequest struct {
-	FromNode string `json:"from_node" binding:"required"`
-	ToNode   string `json:"to_node" binding:"required"`
-}
-
 type ReqID struct {
 	ID int64 `uri:"id" binding:"required"`
 }
@@ -19,45 +14,10 @@ type RouteRequestByID struct {
 	ToNodeID   int64 `json:"to_node_id" binding:"required,min=1"`
 }
 
-type RouteRequestByPlaceJSON struct {
-	From pgtype.Text `json:"from" binding:"required"`
-	To   pgtype.Text `json:"to" binding:"required"`
-}
-
-type PlaceOrGeomRequest struct {
-	Name string      `json:"name"`
-	Geom interface{} `json:"geom"`
-}
-
-type RouteRequestByBuildingJSON struct {
-	From pgtype.Text `json:"from" binding:"required"`
-	To   pgtype.Text `json:"to" binding:"required"`
-}
-
-type RouteRequestByBuildingOrPlace struct {
-	From pgtype.Text `json:"from" binding:"required"`
-	To   pgtype.Text `json:"to" binding:"required"`
-}
-
-type ClosestNodeResult struct {
-	Node db.GetClosestPointToQueryLocationRow
-	Err  error
-}
-
-type DijkstraResult struct {
-	Paths    []int64
-	Distance float64
-	Err      error
-}
-
-type PlacesResult struct {
-	Places []db.ListPlacesRow
-	Err    error
-}
-
-type BuildingResult struct {
-	Building []db.ListBuildingsRow
-	Err      error
+type RouteRequest struct {
+	From         pgtype.Text `json:"from" binding:"required"`
+	FromLocation pgtype.Text `json:"from_location"`
+	To           pgtype.Text `json:"to" binding:"required"`
 }
 
 type Nodes struct {
@@ -71,4 +31,30 @@ type Edge struct {
 	FromNodeID int64
 	ToNodeID   int64
 	Weight     float64
+}
+
+type PlacesResult struct {
+	Places []db.ListPlacesRow
+	Err    error
+}
+
+type BuildingsResult struct {
+	Buildings []db.ListBuildingsRow
+	Err       error
+}
+
+type ClosestNodeResult struct {
+	Node db.GetClosestPointToQueryLocationRow
+	Err  error
+}
+
+type ClosestNodeResultToUserLocation struct {
+	Node db.GetClosestPointToQueryLocationByLatLngGeomRow
+	Err  error
+}
+
+type DijkstraResult struct {
+	Paths    []int64
+	Distance float64
+	Err      error
 }

@@ -24,6 +24,8 @@ L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 
 const clearButton = L.control({position: 'topright'});
 const markersContainer = [];
+let userX = null;
+let userY = null;
 let polyline = null;
 
 function clearMarkers() {
@@ -62,6 +64,9 @@ function onMapClick(e) {
 
     // If you need the coordinates, you can use e.latlng.lat and e.latlng.lng
     console.log(`Clicked location: Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`);
+    const [x, y] = [e.latlng.lng, e.latlng.lat];
+    userX = x
+    userY = y
 }
 
 map.on('click', onMapClick);
@@ -78,14 +83,15 @@ export const onSubmitForm = (routeUrl, formID) => {
 
             const formData = new FormData(form);
             const jsonData = Object.fromEntries(formData.entries());
+            if (jsonData.from === "My Location")
+                jsonData.from_location = `POINT(${userX} ${userY})`
+
             const data = JSON.stringify(jsonData);
 
             APIClient(routeUrl, 'POST', data, result => {
                 spinner.style.display = 'none';
-                console.log(result);
                 const data = result.paths.map(res => res.geom_geographic);
                 const distance = result.distance;
-                console.log(data);
                 drawPath(data, distance);
             });
         });

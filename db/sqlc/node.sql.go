@@ -12,29 +12,22 @@ import (
 const getClosestPointToQueryLocation = `-- name: GetClosestPointToQueryLocation :one
 SELECT id,
        name,
-       ST_ASTEXT(geom)                     AS closest_geom,
-       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS closest_geom_geographic
+       ST_ASTEXT(geom) AS closest_geom
 FROM node
 ORDER BY geom <-> ST_GEOMFROMTEXT($1, 3857)
 LIMIT 1
 `
 
 type GetClosestPointToQueryLocationRow struct {
-	ID                    int64       `json:"id"`
-	Name                  string      `json:"name"`
-	ClosestGeom           interface{} `json:"closest_geom"`
-	ClosestGeomGeographic interface{} `json:"closest_geom_geographic"`
+	ID          int64       `json:"id"`
+	Name        string      `json:"name"`
+	ClosestGeom interface{} `json:"closest_geom"`
 }
 
 func (q *Queries) GetClosestPointToQueryLocation(ctx context.Context, stGeomfromtext interface{}) (GetClosestPointToQueryLocationRow, error) {
 	row := q.db.QueryRow(ctx, getClosestPointToQueryLocation, stGeomfromtext)
 	var i GetClosestPointToQueryLocationRow
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.ClosestGeom,
-		&i.ClosestGeomGeographic,
-	)
+	err := row.Scan(&i.ID, &i.Name, &i.ClosestGeom)
 	return i, err
 }
 
@@ -95,7 +88,7 @@ type GetNodesByIdsRow struct {
 	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
-func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
+func (q *Queries) GetNodesByIds(ctx context.Context, id int64) ([]GetNodesByIdsRow, error) {
 	rows, err := q.db.Query(ctx, getNodesByIds, id)
 	if err != nil {
 		return nil, err
