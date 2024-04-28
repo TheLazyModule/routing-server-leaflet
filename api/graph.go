@@ -20,5 +20,5 @@ func (s *Server) ReadGraphIntoMemory(ctx context.Context) error {
 		}
 	}
 
-	return err
+	return nil
 }
