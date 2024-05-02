@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
-	"os"
 	"routing/api"
 	db "routing/db/sqlc"
 	"routing/utils"
@@ -21,8 +20,7 @@ func main() {
 
 	conn, err := pgxpool.New(context.Background(), config.DBUrl)
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Unable to connect to database: %v\n", err)
 	} else {
 		fmt.Println("Database Connected!")
 	}

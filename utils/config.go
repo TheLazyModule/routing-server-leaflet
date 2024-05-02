@@ -7,7 +7,6 @@ import (
 // Config stores all configuration of the application.
 // The values are read by viper from a config file or environment variable.
 type Config struct {
-	SQLcAuthToken string `mapstructure:"SQLC_AUTH_TOKEN"`
 	DBUrl         string `mapstructure:"DATABASE_URL"`
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 }
