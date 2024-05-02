@@ -2,13 +2,13 @@ include app.env
 export
 
 up:
-	docker compose up -d
+	docker compose up
 
 up-prod:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 down:
-	docker compose down
+	docker compose down -v
 
 server:
 	go run main.go

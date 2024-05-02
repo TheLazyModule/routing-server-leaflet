@@ -1,0 +1,10 @@
+name: myenv
+channels:
+  - conda-forge
+dependencies:
+  - python-dotenv=1.0.1
+  - shapely
+  - pyproj
+  - geopandas
+  - psycopg2-binary
+  - pip

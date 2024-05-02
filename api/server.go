@@ -20,7 +20,7 @@ func NewServer(store *db.Store) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	server.router.Static("/map", "./public")
+	server.router.Static("/map", "./app/public")
 	err = server.ConstructGraph()
 	if err != nil {
 		return nil, err

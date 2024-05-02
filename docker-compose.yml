@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   db:
     image: "${IMAGE}"
@@ -10,16 +9,30 @@ services:
       - "${PG_PORT_MAPPING}"
     volumes:
       - pgdata:/var/lib/postgresql/data
-#  api:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#      target: base
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - DATABASE_URL=postgresql://root:integral@db:5433/routes-db?sslmode=disable
-#    volumes:
-#      - ./:/app
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    volumes:
+      - appdata:/app
+      - ./geojson-graph:/app/geojson-graph  # Bind-mounting for live code updates
+      - ./geojson-graph/requirements.txt:/app/geojson-graph/requirements.txt
+      - ./wait-for.sh:/app/wait-for.sh
+      - ./startup.sh:/app/startup.sh
+      - ./db/migrations:/app/migrations
+      - ./app.env:/app/app.env
+      - ./.env:/app/.env
+    environment:
+      - DATABASE_URL=postgresql://${PGUSER}:${PGPASSWORD}@db:5432/${PGDATABASE}?sslmode=disable
+    entrypoint: ["/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/startup.sh"]
+    command: ["/app/main"]
+
 volumes:
   pgdata:
+  appdata:
+
