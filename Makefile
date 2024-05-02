@@ -8,7 +8,7 @@ up-prod:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 down:
-	docker compose down -v
+	docker compose down
 
 server:
 	go run main.go

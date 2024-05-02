@@ -20,17 +20,12 @@ services:
       - "8080:8080"
     volumes:
       - appdata:/app
-      - ./geojson-graph:/app/geojson-graph  # Bind-mounting for live code updates
-      - ./geojson-graph/requirements.txt:/app/geojson-graph/requirements.txt
       - ./wait-for.sh:/app/wait-for.sh
-      - ./startup.sh:/app/startup.sh
-      - ./db/migrations:/app/migrations
       - ./app.env:/app/app.env
       - ./.env:/app/.env
     environment:
       - DATABASE_URL=postgresql://${PGUSER}:${PGPASSWORD}@db:5432/${PGDATABASE}?sslmode=disable
-    entrypoint: ["/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/startup.sh"]
-    command: ["/app/main"]
+    entrypoint: ["/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/main"]
 
 volumes:
   pgdata:
