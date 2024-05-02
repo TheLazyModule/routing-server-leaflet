@@ -9,7 +9,7 @@ FROM alpine:3.19
 WORKDIR /app
 # Copy built Go application and migrate tool from the builder stage
 COPY --from=builder /app/main /app/main
-COPY .env app.env /app/
+COPY app.env  /app/
 COPY public  /app/public
 COPY wait-for.sh  /app/
 RUN chmod +x /app/wait-for.sh
