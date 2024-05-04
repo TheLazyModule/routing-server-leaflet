@@ -17,6 +17,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot Load configurations")
 	}
+	fmt.Println(config.DBUrl)
+	fmt.Println(config.ServerAddress)
 
 	conn, err := pgxpool.New(context.Background(), config.DBUrl)
 	if err != nil {
