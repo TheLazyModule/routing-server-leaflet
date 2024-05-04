@@ -1,4 +1,4 @@
-include app.env
+include .env
 export
 
 up:
