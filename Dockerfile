@@ -13,7 +13,10 @@ COPY --from=builder /app/main /app/main
 #COPY --from=builder /app/app.env /app/app.env
 COPY public  /app/public
 COPY wait-for.sh  /app/
+COPY startup.sh /app/
 RUN chmod +x /app/wait-for.sh
+RUN chmod +x /app/startup.sh
 RUN chmod +x /app/main
 EXPOSE 8080
-ENTRYPOINT ["/app/main"]
+CMD ["/app/main"]
+ENTRYPOINT ["/app/startup.sh"]

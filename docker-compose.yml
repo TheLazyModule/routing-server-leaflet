@@ -25,7 +25,8 @@ services:
       - ./.env:/app/.env
     environment:
       - DATABASE_URL=postgresql://${PGUSER}:${PGPASSWORD}@db:5432/${PGDATABASE}?sslmode=disable
-    entrypoint: ["/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/main"]
+    entrypoint: ["/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/start.sh"]
+    command: ["/app/main"]
 
 volumes:
   pgdata:
