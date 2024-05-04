@@ -13,7 +13,7 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	config, err := utils.LoadConfig(".")
+	config, err := utils.LoadConfig("..")
 	if err != nil {
 		log.Fatal("Cannot Load configurations")
 	}
