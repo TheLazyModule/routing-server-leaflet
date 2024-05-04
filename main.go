@@ -15,7 +15,7 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	config, err := utils.LoadConfig(".")
 	if err != nil {
-		fmt.Println("Cannot Load configurations")
+		log.Fatal("Cannot Load configurations")
 	}
 
 	conn, err := pgxpool.New(context.Background(), config.DBUrl)
