@@ -41,6 +41,7 @@ restart_db:
 docker_build:
 	docker build -t routing-app:latest .
 
+
 shuv:
 	git add .
 	git commit -a
