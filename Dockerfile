@@ -11,6 +11,7 @@ WORKDIR /app
 COPY --from=builder /app/main /app/main
 COPY public  /app/public
 COPY app.yaml /app/
+COPY app.env /app/
 #COPY wait-for.sh  /app/
 #COPY startup.sh /app/
 #RUN chmod +x /app/wait-for.sh
