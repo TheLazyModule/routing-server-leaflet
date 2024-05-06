@@ -1,25 +1,26 @@
-package api
+package controller
 
 import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"routing/api/utils"
 	"routing/db"
 )
 
-func (s *Server) GetBuildings(ctx *gin.Context) {
-	buildings, err := s.store.ListBuildings(ctx)
+func (c *Controller) GetBuildings(ctx *gin.Context) {
+	buildings, err := c.store.ListBuildings(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 	ctx.JSON(http.StatusOK, buildings)
 }
 
-func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
+func (c *Controller) GetShortestRouteByBuilding(ctx *gin.Context) {
 	var req db.RouteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 
@@ -28,15 +29,15 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 	defer cancel()
 
 	// Stage 1: Get building centroid geometries.
-	geomFrom, err := s.store.GetBuildingCentroidGeom(pipelineCtx, req.From)
+	geomFrom, err := c.store.GetBuildingCentroidGeom(pipelineCtx, req.From)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
-	geomTo, err := s.store.GetBuildingCentroidGeom(pipelineCtx, req.To)
+	geomTo, err := c.store.GetBuildingCentroidGeom(pipelineCtx, req.To)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
@@ -44,41 +45,41 @@ func (s *Server) GetShortestRouteByBuilding(ctx *gin.Context) {
 	closestNodeFromChan := make(chan db.ClosestNodeResult, 1)
 	closestNodeToChan := make(chan db.ClosestNodeResult, 1)
 	// -->
-	go s.getClosestNode(pipelineCtx, geomFrom.BuildingCentroid, closestNodeFromChan)
+	go c.getClosestNode(pipelineCtx, geomFrom.BuildingCentroid, closestNodeFromChan)
 	// -->
-	go s.getClosestNode(pipelineCtx, geomTo.BuildingCentroid, closestNodeToChan)
+	go c.getClosestNode(pipelineCtx, geomTo.BuildingCentroid, closestNodeToChan)
 
 	closestNodeFromResult := <-closestNodeFromChan
 	closestNodeToResult := <-closestNodeToChan
 	if err = closestNodeFromResult.Err; err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	if err = closestNodeToResult.Err; err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 
 	// Stage 3: Calculate the shortest path asynchronously.
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
 	// -->
-	go s.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
+	go c.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(dijkstraResult.Err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(dijkstraResult.Err))
 		return
 	}
 
 	// Stage 4: Get nodes by IDs asynchronously.
 	nodesChan := make(chan db.Nodes, 1)
 	// -->
-	go s.getNodesByIdsWorker(pipelineCtx, dijkstraResult.Paths, nodesChan)
+	go c.getNodesByIdsWorker(pipelineCtx, dijkstraResult.Paths, nodesChan)
 
 	nodesResult := <-nodesChan
 	if nodesResult.Err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"distance": dijkstraResult.Distance, "paths": nodesResult.Nodes})

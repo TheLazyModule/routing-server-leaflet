@@ -6,14 +6,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"routing/api"
+	"routing/config"
 	db "routing/db/sqlc"
-	"routing/utils"
 	"runtime"
 )
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	config, err := utils.LoadConfig(".")
+	config, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Cannot Load configurations")
 	}

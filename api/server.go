@@ -2,26 +2,23 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	controller "routing/api/controllers"
+	"routing/api/routes"
 	db "routing/db/sqlc"
-	"routing/utils"
 )
 
 // Server all HTTP requests
 type Server struct {
-	store  *db.Store
-	router *gin.Engine
-	Graph  *utils.Graph
+	Controller *controller.Controller
+	Routes     *routes.Routes
 }
 
 func NewServer(store *db.Store) (*Server, error) {
-	server := &Server{store: store}
-	server.router = gin.Default()
-	err := server.router.SetTrustedProxies(nil)
-	if err != nil {
-		return nil, err
-	}
-	server.router.Static("/map", "./public")
-	err = server.ConstructGraph()
+	_controller := controller.NewController(store, gin.Default())
+	_routes := routes.NewRoutes(_controller)
+	server := &Server{_controller, _routes}
+	server.Controller.Router.Static("/map", "./public")
+	err := server.ConstructGraph()
 	if err != nil {
 		return nil, err
 	}
@@ -29,8 +26,16 @@ func NewServer(store *db.Store) (*Server, error) {
 	return server, nil
 }
 
+func (s *Server) ServeRoutes() {
+	s.Routes.BuildingRoute()
+	s.Routes.NodeRoute()
+	s.Routes.EdgeRoute()
+	s.Routes.ClassroomRoutes()
+	s.Routes.GeneralRoutes()
+}
+
 func (s *Server) ConstructGraph() error {
-	err := s.ReadGraphIntoMemory(&gin.Context{})
+	err := s.Controller.ReadGraphIntoMemory(&gin.Context{})
 	if err != nil {
 		return err
 	}
@@ -38,11 +43,5 @@ func (s *Server) ConstructGraph() error {
 }
 
 func (s *Server) RunServer(address string) error {
-	return s.router.Run(address)
-}
-
-func errorResponse(err error) gin.H {
-	return gin.H{
-		"error": err.Error(),
-	}
+	return s.Controller.Router.Run(address)
 }
