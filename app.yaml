@@ -1,2 +1,2 @@
-DATABASE_URL: "postgresql://root:0269306032DbB@routes-database.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com:5432/routes_db"
+DATABASE_URL: "postgresql://root:0269306032DbB@find-my-classroom.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com/find_my_classroom"
 SERVER_ADDRESS: "0.0.0.0:8080"

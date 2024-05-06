@@ -31,8 +31,8 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Load bucket and save to app.env
-        run: aws s3 cp s3://routing-env/app.env app.env
+#      - name: Load bucket and save to app.env
+#        run: aws s3 cp s3://routing-env/app.env app.env
 
 
       - name: Build, tag, and push image to Amazon ECR

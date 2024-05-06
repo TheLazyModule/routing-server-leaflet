@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="routes-db@localhost" uuid="00eb9b9f-392a-41ce-9f32-759b6123eceb">
+    <data-source source="LOCAL" name="find_my_classroom@find-my-classroom.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com" uuid="be9de442-c17c-4099-89a1-0595d126733a">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/routes-db</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="routes_db@routes-database.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com" uuid="310642a4-d912-459d-90fe-3c151fc7cf21">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://routes-database.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com:5432/routes_db</jdbc-url>
+      <jdbc-url>jdbc:postgresql://find-my-classroom.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com:5432/find_my_classroom</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

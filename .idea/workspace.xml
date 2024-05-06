@@ -5,21 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f03ffc5-0204-4bbd-839f-26c44eab6659" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/buildingHandler.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/classroomHandler.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/graph.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/handler.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/nodeHandler.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/placeHandler.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/workers.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/environment.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/configEnv.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/dijkstra.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/dijkstra.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/graph.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/graph.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/app.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
