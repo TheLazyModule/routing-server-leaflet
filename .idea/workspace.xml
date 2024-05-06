@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f03ffc5-0204-4bbd-839f-26c44eab6659" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/be9de442-c17c-4099-89a1-0595d126733a.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/be9de442-c17c-4099-89a1-0595d126733a.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/be9de442-c17c-4099-89a1-0595d126733a/storage_v2/_src_/database/find_my_classroom.RtiCTw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/be9de442-c17c-4099-89a1-0595d126733a/storage_v2/_src_/database/find_my_classroom.RtiCTw/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/generalRoute.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/generalRoute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/placeRoute.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/placeRoute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,11 +69,11 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/eks" />
       <recent name="$PROJECT_DIR$/configEnv" />
       <recent name="$PROJECT_DIR$/api" />
       <recent name="$PROJECT_DIR$/utils" />
       <recent name="$PROJECT_DIR$/api/routes" />
-      <recent name="$PROJECT_DIR$/api/controllers" />
     </key>
   </component>
   <component name="RunManager">
