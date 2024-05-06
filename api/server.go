@@ -14,24 +14,28 @@ type Server struct {
 }
 
 func NewServer(store *db.Store) (*Server, error) {
+	// Initialize the controller
 	_controller := controller.NewController(store, gin.Default())
+	// Initialize the routes
 	_routes := routes.NewRoutes(_controller)
+	// Initialize the server
 	server := &Server{_controller, _routes}
-	server.Controller.Router.Static("/map", "./public")
+	// Construct the graph
 	err := server.ConstructGraph()
 	if err != nil {
 		return nil, err
 	}
-	server.ServeRoutes()
+	server.SetRoutes()
 	return server, nil
 }
 
-func (s *Server) ServeRoutes() {
+func (s *Server) SetRoutes() {
+	s.Routes.GeneralRoutes()
 	s.Routes.BuildingRoute()
+	s.Routes.PlaceRoute()
 	s.Routes.NodeRoute()
 	s.Routes.EdgeRoute()
-	s.Routes.ClassroomRoutes()
-	s.Routes.GeneralRoutes()
+	//s.Routes.ClassroomRoutes()
 }
 
 func (s *Server) ConstructGraph() error {

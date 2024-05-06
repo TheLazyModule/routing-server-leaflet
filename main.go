@@ -13,14 +13,12 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	config, err := config.LoadConfig(".")
+	configEnv, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Cannot Load configurations")
 	}
-	fmt.Println("DBURL", config.DBUrl)
-	fmt.Println("Server Address", config.ServerAddress)
 
-	conn, err := pgxpool.New(context.Background(), config.DBUrl)
+	conn, err := pgxpool.New(context.Background(), configEnv.DBUrl)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	} else {
@@ -33,7 +31,7 @@ func main() {
 		log.Fatal("Cannot initialize Server")
 	}
 
-	err = server.RunServer(config.ServerAddress)
+	err = server.RunServer(configEnv.ServerAddress)
 	if err != nil {
 		log.Fatal("Cannot RunServer Server")
 	}
