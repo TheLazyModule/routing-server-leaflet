@@ -31,8 +31,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-#      - name: Load secrets and save to app.env
-#        run: aws secretsmanager get-secret-value --secret-id routing --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
+      - name: Load bucket and save to app.env
+        run: aws s3 cp s3://routing-env/app.env /app/app.env
+
 
       - name: Build, tag, and push image to Amazon ECR
         env:

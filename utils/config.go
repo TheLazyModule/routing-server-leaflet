@@ -1,27 +1,27 @@
 package utils
 
 import (
-	"errors"
 	"github.com/spf13/viper"
 )
 
+// Config stores all configuration of the application.
+// The values are read by viper from a config file or environment variable.
 type Config struct {
 	DBUrl         string `mapstructure:"DATABASE_URL"`
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 }
 
+// LoadConfig reads configuration from file or environment variables.
 func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+	viper.SetConfigType("yaml")
 
-	viper.AutomaticEnv() // Bind environment variables
+	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()
-	var configFileNotFoundError viper.ConfigFileNotFoundError
-	if errors.As(err, &configFileNotFoundError) {
-		// Config file not found; ignore error if we can use environment variables
-		err = nil
+	if err != nil {
+		return
 	}
 
 	err = viper.Unmarshal(&config)

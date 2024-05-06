@@ -8,11 +8,11 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/routes-db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="routes_db@routes-db.c14samikoipe.eu-north-1.rds.amazonaws.com" uuid="310642a4-d912-459d-90fe-3c151fc7cf21">
+    <data-source source="LOCAL" name="routes_db@routes-database.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com" uuid="310642a4-d912-459d-90fe-3c151fc7cf21">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://routes-db.c14samikoipe.eu-north-1.rds.amazonaws.com:5432/routes_db</jdbc-url>
+      <jdbc-url>jdbc:postgresql://routes-database.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com:5432/routes_db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
