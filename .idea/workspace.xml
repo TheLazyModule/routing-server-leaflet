@@ -6,24 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2f03ffc5-0204-4bbd-839f-26c44eab6659" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/controllers/buildingController.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/buildingController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/controllers/generalController.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/generalController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/controllers/nodeController.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/nodeController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/controllers/placeController.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/placeController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/controllers/workers.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/workers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/buildingRoute.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/buildingRoute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/generalRoute.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/generalRoute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/nodeRoute.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/nodeRoute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/migrations/000001_init_schema.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/000001_init_schema.up.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/all.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/all.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/building.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/building.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/classroom.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/classroom.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/db.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/edge.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/edge.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/node.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/node.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/sqlc/place.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/place.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/types.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +49,7 @@
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;database.data.extractors.current.export.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;ft/get&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/denis/backend/routing-server&quot;,
