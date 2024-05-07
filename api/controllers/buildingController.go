@@ -19,7 +19,7 @@ func (c *Controller) GetBuildings(ctx *gin.Context) {
 
 func (c *Controller) GetShortestRouteByBuilding(ctx *gin.Context) {
 	var req db.RouteRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
@@ -64,7 +64,7 @@ func (c *Controller) GetShortestRouteByBuilding(ctx *gin.Context) {
 	// Stage 3: Calculate the shortest path asynchronously.
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
 	// -->
-	go c.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
+	//go c.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {

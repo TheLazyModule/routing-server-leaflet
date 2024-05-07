@@ -19,7 +19,7 @@ func (c *Controller) GetPlaces(ctx *gin.Context) {
 
 func (c *Controller) GetShortestRouteByPlace(ctx *gin.Context) {
 	var req db.RouteRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
@@ -28,12 +28,12 @@ func (c *Controller) GetShortestRouteByPlace(ctx *gin.Context) {
 	pipelineCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	geomFrom, err := c.store.GetPlaceGeom(pipelineCtx, req.From.String)
+	geomFrom, err := c.store.GetPlaceGeom(pipelineCtx, req.From)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
-	geomTo, err := c.store.GetPlaceGeom(pipelineCtx, req.To.String)
+	geomTo, err := c.store.GetPlaceGeom(pipelineCtx, req.To)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
@@ -62,7 +62,7 @@ func (c *Controller) GetShortestRouteByPlace(ctx *gin.Context) {
 	// Stage 3: Calculate the shortest path asynchronously.
 	dijkstraResultChan := make(chan db.DijkstraResult, 1)
 	// -->
-	go c.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
+	//go c.calculateShortestPathWorker(pipelineCtx, closestNodeFromResult.Node.ID, closestNodeToResult.Node.ID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {

@@ -59,7 +59,7 @@ func (c *Controller) GetNodeByID(ctx *gin.Context) {
 
 func (c *Controller) GetShortestRouteByNodes(ctx *gin.Context) {
 	var req db.RouteRequestByID
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
@@ -68,7 +68,7 @@ func (c *Controller) GetShortestRouteByNodes(ctx *gin.Context) {
 	nodesChan := make(chan db.Nodes, 1)
 
 	// -->
-	go c.calculateShortestPathWorker(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
+	//go c.calculateShortestPathWorker(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {

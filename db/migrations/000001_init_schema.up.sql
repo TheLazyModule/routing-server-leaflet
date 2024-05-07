@@ -26,15 +26,15 @@ CREATE TABLE "place"
 (
     "id"       BIGSERIAL PRIMARY KEY,
     "name"     VARCHAR NOT NULL,
-    "geom" GEOMETRY(POINT, 3857)
+    "geom" GEOMETRY(POINT, 3857) NOT NULL
 );
 
 -- Create the 'building' table
 CREATE TABLE "building"
 (
     "id"   BIGSERIAL PRIMARY KEY,
-    "name" VARCHAR,
-    "geom" GEOMETRY(POLYGON, 3857)
+    "name" VARCHAR NOT NULL,
+    "geom" GEOMETRY(POLYGON, 3857) NOT NULL
 );
 
 -- Create the 'classroom' table
