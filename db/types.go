@@ -52,6 +52,10 @@ type RouteRequest struct {
 	To           string `form:"to" binding:"required"`
 }
 
+type LocationRequest struct {
+	Name string `form:"name" binding:"required"`
+}
+
 type RouteRequestJSON struct {
 	From         string `json:"from" binding:"required"`
 	FromLocation string `json:"from_location"`
