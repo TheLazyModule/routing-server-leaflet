@@ -45,27 +45,13 @@ func (c *Controller) GetPlacesAndBuildings(ctx *gin.Context) {
 
 func (c *Controller) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 	var req db.RouteRequest
-	var reqJSON db.RouteRequestJSON
-	contentType := ctx.GetHeader("Content-Type")
-	// Query Params
-	if contentType == "application/json" {
-		err := ctx.ShouldBind(&req)
-		fmt.Println(req)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
-			return
-		}
-		c.handlerBody(ctx, &req)
-	} else {
-		// Static web request
-		err := ctx.ShouldBindJSON(&reqJSON)
-		fmt.Println(reqJSON)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
-			return
-		}
-		c.handlerBody(ctx, &reqJSON)
+	err := ctx.ShouldBind(&req)
+	fmt.Println(req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
+		return
 	}
+	c.handlerBody(ctx, &req)
 }
 
 func (c *Controller) FuzzyFindBuildingOrPlace(ctx *gin.Context) {
