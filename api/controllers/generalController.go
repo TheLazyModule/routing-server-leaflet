@@ -11,8 +11,8 @@ import (
 
 var UserLocation string = "My Location"
 
-func (c *Controller) ShowMap(ctx *gin.Context) {
-	ctx.Redirect(http.StatusFound, "/map")
+func (c *Controller) ServerActive(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"message": "Server is up and Running"})
 }
 
 func (c *Controller) GetPlacesAndBuildings(ctx *gin.Context) {
