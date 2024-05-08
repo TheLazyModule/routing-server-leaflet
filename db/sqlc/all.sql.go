@@ -10,21 +10,21 @@ import (
 )
 
 const fuzzyFindPlaceOrBuilding = `-- name: FuzzyFindPlaceOrBuilding :many
-WITH Combined AS (SELECT name, ST_AsText(geom) AS geom
+WITH Combined AS (SELECT id, name
                   FROM place
                   WHERE name ILIKE '%' || $1::text || '%'
 UNION
-SELECT name, ST_AsText(ST_Centroid(geom)) AS geom
+SELECT id, name
 FROM building
 WHERE name ILIKE '%' || $1::text || '%'
 )
-SELECT name, geom
+SELECT id, name
 FROM Combined
 `
 
 type FuzzyFindPlaceOrBuildingRow struct {
-	Name string      `json:"name"`
-	Geom interface{} `json:"geom"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 func (q *Queries) FuzzyFindPlaceOrBuilding(ctx context.Context, text string) ([]FuzzyFindPlaceOrBuildingRow, error) {
@@ -36,7 +36,7 @@ func (q *Queries) FuzzyFindPlaceOrBuilding(ctx context.Context, text string) ([]
 	items := []FuzzyFindPlaceOrBuildingRow{}
 	for rows.Next() {
 		var i FuzzyFindPlaceOrBuildingRow
-		if err := rows.Scan(&i.Name, &i.Geom); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

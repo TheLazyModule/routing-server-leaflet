@@ -20,13 +20,13 @@ FROM node
 ORDER BY geom <-> st_transform(ST_GEOMFROMTEXT($1, 4326), 3857) LIMIT 1;
 
 -- name: FuzzyFindPlaceOrBuilding :many
-WITH Combined AS (SELECT name, ST_AsText(geom) AS geom
+WITH Combined AS (SELECT id, name
                   FROM place
                   WHERE name ILIKE '%' || @text::text || '%'
 UNION
-SELECT name, ST_AsText(ST_Centroid(geom)) AS geom
+SELECT id, name
 FROM building
 WHERE name ILIKE '%' || @text::text || '%'
 )
-SELECT name, geom
+SELECT id, name
 FROM Combined;
