@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	controller "routing/api/controllers"
 	"routing/api/routes"
@@ -22,13 +21,7 @@ func NewServer(store *db.Store) (*Server, error) {
 	// Initialize the server
 	server := &Server{_controller, _routes}
 	// Configure CORS settings
-	server.Controller.Router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://routing-web.vercel.app/"}, // Add the origin of your React app
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-	}))
+	server.Controller.ConfigCORSMiddleWare()
 	// Construct the graph
 	err := server.ConstructGraph()
 	if err != nil {
