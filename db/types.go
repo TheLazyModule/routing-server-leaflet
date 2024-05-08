@@ -8,6 +8,10 @@ type ReqID struct {
 	ID int64 `uri:"id" binding:"required"`
 }
 
+type SearchText struct {
+	Text string `form:"text"`
+}
+
 type RouteRequestByID struct {
 	FromNodeID int64 `form:"from_node_id" binding:"required,min=1"`
 	ToNodeID   int64 `form:"to_node_id" binding:"required,min=1"`

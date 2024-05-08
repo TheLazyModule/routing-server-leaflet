@@ -10,8 +10,8 @@ SELECT name,
        ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
-WHERE id = ANY ($1)
-ORDER BY ARRAY_POSITION($1, id);
+WHERE id = ANY (@ids::bigint[])
+ORDER BY ARRAY_POSITION(@ids, id);
 
 -- name: GetNodeByID :one
 SELECT name,
@@ -40,4 +40,5 @@ SELECT id,
 FROM node
 ORDER BY geom <-> ST_GEOMFROMTEXT($1, 3857)
 LIMIT 1;
+
 

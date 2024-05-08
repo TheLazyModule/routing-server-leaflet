@@ -67,3 +67,17 @@ func (c *Controller) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 		c.handlerBody(ctx, &reqJSON)
 	}
 }
+
+func (c *Controller) FuzzyFindBuildingOrPlace(ctx *gin.Context) {
+	var req db.SearchText
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+	}
+	fmt.Println(req.Text)
+
+	result, err := c.store.FuzzyFindPlaceOrBuilding(ctx, req.Text)
+	if err != nil {
+		return
+	}
+	ctx.JSON(http.StatusOK, result)
+}

@@ -78,7 +78,7 @@ SELECT name,
        ST_ASTEXT(geom)                     AS geom,
        ST_ASTEXT(ST_TRANSFORM(geom, 4326)) AS geom_geographic
 FROM node
-WHERE id = ANY ($1)
+WHERE id = ANY ($1::bigint[])
 ORDER BY ARRAY_POSITION($1, id)
 `
 
@@ -88,8 +88,8 @@ type GetNodesByIdsRow struct {
 	GeomGeographic interface{} `json:"geom_geographic"`
 }
 
-func (q *Queries) GetNodesByIds(ctx context.Context, id []int64) ([]GetNodesByIdsRow, error) {
-	rows, err := q.db.Query(ctx, getNodesByIds, id)
+func (q *Queries) GetNodesByIds(ctx context.Context, ids []int64) ([]GetNodesByIdsRow, error) {
+	rows, err := q.db.Query(ctx, getNodesByIds, ids)
 	if err != nil {
 		return nil, err
 	}
