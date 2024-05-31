@@ -44,3 +44,7 @@ func (c *Controller) ReadGraphIntoMemory(ctx *gin.Context) error {
 	}
 	return nil
 }
+
+func goTo() {
+	// This is a dummy function
+}
