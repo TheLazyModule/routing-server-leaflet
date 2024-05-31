@@ -1,2 +1,5 @@
-DATABASE_URL: "postgresql://root:0269306032DbB@find-my-classroom.c1mm6wwyklvd.eu-west-1.rds.amazonaws.com/find_my_classroom"
+DATABASE_URL: "postgres://postgres.grhfzihgiepqhdesyadv:0269306032DbB@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?sslmode=require"
 SERVER_ADDRESS: "0.0.0.0:8080"
+PORT: "8080"
+
+
