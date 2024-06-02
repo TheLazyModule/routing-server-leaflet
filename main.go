@@ -28,7 +28,7 @@ func main() {
 	store := db.NewStore(conn)
 	server, err := api.NewServer(store)
 	if err != nil {
-		log.Fatal("Cannot initialize Server")
+		log.Fatal("Cannot initialize Server", err)
 	}
 
 	err = server.RunServer(configEnv.ServerAddress)

@@ -22,6 +22,7 @@ func NewServer(store *db.Store) (*Server, error) {
 	server := &Server{_controller, _routes}
 	// Configure CORS settings
 	server.Controller.ConfigCORSMiddleWare()
+	gin.SetMode(gin.ReleaseMode)
 	// Construct the graph
 	err := server.ConstructGraph()
 	if err != nil {
