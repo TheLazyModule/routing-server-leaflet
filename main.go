@@ -69,8 +69,10 @@ func main() {
 
 	fmt.Println("Running Server on address:", configEnv.ServerAddress)
 	err = server.RunServer(configEnv.ServerAddress)
+
 	if err != nil {
 		log.Fatal("Cannot run server:", err)
 	}
+
 	fmt.Println("Server is running on address:", configEnv.ServerAddress)
 }
