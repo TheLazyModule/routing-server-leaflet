@@ -1,20 +1,34 @@
-include .env
-export
+# Default .env file
+ENV_FILE := config.env
+
+# Check for MODE and set the appropriate .env file
+ifeq ($(ENV),development)
+	ENV_FILE := devconfig.env
+endif
+
+# Include the chosen .env file
+ifneq (,$(wildcard $(ENV_FILE)))
+	include $(ENV_FILE)
+	export
+else
+	$(error Environment file $(ENV_FILE) not found)
+endif
 
 up:
 	docker compose up
 
-up-prod:
-	docker compose -f docker-compose.yml -f docker-compose.prod.yml up
-
 down:
-	docker compose down
+	docker compose down -v
 
 server:
-	go run main.go
+	@echo "Starting server in development mode..."
+	@echo $(ENV_FILE)
+	ENV=development  go run main.go
 
-server-container:
-	docker run --name routing-app -p 8080:8080 --network routes-network -e GIN_MODE=release -e  routing-app:latest
+server-prod:
+	@echo "Starting server in production mode..."
+	@echo $(ENV_FILE)
+	ENV=production go run main.go
 
 postgres:
 	 docker run --name $(PG_CONTAINER_NAME) -p $(PG_PORT_MAPPING) -e POSTGRES_PASSWORD=$(PGPASSWORD) -e POSTGRES_USER=$(PGUSER) -d $(IMAGE)
@@ -51,4 +65,4 @@ generate:
 	sqlc generate
 
 
-.PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db, server-container
+.PHONY: down, up, up-prod, server, createdb, dropdb, migrate_up, migrate_down, restart_db, server-container, server-prod

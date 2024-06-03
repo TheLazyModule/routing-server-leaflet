@@ -5,13 +5,10 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
-	"os"
-	"os/signal"
 	"routing/api"
 	"routing/config"
 	db "routing/db/sqlc"
 	"runtime"
-	"syscall"
 )
 
 func main() {
@@ -24,6 +21,7 @@ func main() {
 	}
 	fmt.Println("Configurations loaded")
 
+	fmt.Println("Database URL:", configEnv.DBUrl)
 	fmt.Println("Connecting to database...")
 	conn, err := pgxpool.New(context.Background(), configEnv.DBUrl)
 	if err != nil {
@@ -55,17 +53,6 @@ func main() {
 		log.Fatal("Cannot initialize server:", err)
 	}
 	fmt.Println("Server initialized")
-
-	// Graceful shutdown
-	fmt.Println("Setting up graceful shutdown...")
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println("Shutting down gracefully...")
-		conn.Close()
-		os.Exit(0)
-	}()
 
 	fmt.Println("Running Server on address:", configEnv.ServerAddress)
 	err = server.RunServer(configEnv.ServerAddress)

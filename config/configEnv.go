@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"os"
 )
 
 // Config stores all configuration of the application.
@@ -13,10 +14,25 @@ type Config struct {
 
 // LoadConfig reads configuration from file or environment variables.
 func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("yaml")
+	envMode := os.Getenv("ENV")
+	if envMode == "" {
+		envMode = "development"
+	}
 
+	var envFileName string
+	if envMode == "development" {
+		envFileName = "devconfig.env"
+	} else {
+		envFileName = "config.env"
+	}
+
+	if os.Getenv("ENV") == "production" {
+		viper.SetConfigName("config")
+	} else {
+		viper.SetConfigName("devconfig")
+	}
+	viper.AddConfigPath(path)
+	viper.SetConfigFile(path + "/" + envFileName)
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()

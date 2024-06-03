@@ -29,7 +29,6 @@ func (c *Controller) ConfigCORSMiddleWare() {
 }
 
 func (c *Controller) ReadGraphIntoMemory(ctx *gin.Context) error {
-
 	edges, err := c.store.ListEdges(ctx)
 	if err != nil {
 		return err
