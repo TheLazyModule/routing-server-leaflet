@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/exp/slog"
 	"os"
@@ -31,6 +32,8 @@ func DeallocateAllPreparedStatements(conn *pgxpool.Pool) error {
 	}
 	defer acquire.Release()
 
+	acquire.Conn().Config().DefaultQueryExecMode = pgx.QueryExecModeDescribeExec
+	acquire.Conn().Config().DescriptionCacheCapacity = 2024
 	err = acquire.Conn().DeallocateAll(context.Background())
 	if err != nil {
 		return err

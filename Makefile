@@ -8,7 +8,8 @@ endif
 
 # Include the chosen .env file
 ifneq (,$(wildcard $(ENV_FILE)))
-	include $(ENV_FILE) export
+	include $(ENV_FILE)
+	export
 else
 	$(error Environment file $(ENV_FILE) not found)
 endif
