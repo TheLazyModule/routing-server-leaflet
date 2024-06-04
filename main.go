@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"log"
+	"golang.org/x/exp/slog"
+	"os"
 	"routing/api"
 	"routing/config"
 	db "routing/db/sqlc"
@@ -13,53 +13,76 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	Run()
+}
 
-	fmt.Println("Loading configurations...")
+func InitDB(dbUrl string) (*pgxpool.Pool, error) {
+	conn, err := pgxpool.New(context.Background(), dbUrl)
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
+}
+
+func DeallocateAllPreparedStatements(conn *pgxpool.Pool) error {
+	acquire, err := conn.Acquire(context.Background())
+	if err != nil {
+		return err
+	}
+	defer acquire.Release()
+
+	err = acquire.Conn().DeallocateAll(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Run() {
+	// Initialize the logger
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+
+	logger.Info("Loading configurations...")
 	configEnv, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatal("Cannot load configurations:", err)
+		logger.Error("Cannot load configurations", "error", err)
+		return
 	}
-	fmt.Println("Configurations loaded")
+	logger.Info("Configurations loaded")
 
-	fmt.Println("Database URL:", configEnv.DBUrl)
-	fmt.Println("Connecting to database...")
-	conn, err := pgxpool.New(context.Background(), configEnv.DBUrl)
+	logger.Info("Connecting to database...", "database_url", configEnv.DBUrl)
+	conn, err := InitDB(configEnv.DBUrl)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
-	} else {
-		fmt.Println("Database Connected!")
+		logger.Error("Unable to connect to database", "error", err)
+		return
 	}
+	logger.Info("Database connected")
 
-	//acquire, err := conn.Acquire(context.Background())
-	//fmt.Println("Acquiring connection to deallocate prepared statements...")
-	//if err != nil {
-	//	log.Fatalf("Unable to acquire connection: %v\n", err)
-	//}
-	//defer acquire.Release()
-	//
-	//fmt.Println("Deallocating all prepared statements...")
-	//err = acquire.Conn().DeallocateAll(context.Background())
-	//if err != nil {
-	//	log.Fatalf("Unable to deallocate prepared statements: %v\n", err)
-	//}
-	//fmt.Println("Deallocated all prepared statements!")
+	logger.Info("Deallocating all prepared statements...")
+	err = DeallocateAllPreparedStatements(conn)
+	if err != nil {
+		logger.Error("Unable to deallocate prepared statements", "error", err)
+		return
+	}
+	logger.Info("Deallocated all prepared statements")
 
-	fmt.Println("Creating new store...")
+	logger.Info("Creating new store...")
 	store := db.NewStore(conn)
 
-	fmt.Println("Initializing server...")
+	logger.Info("Initializing server...")
 	server, err := api.NewServer(store)
 	if err != nil {
-		log.Fatal("Cannot initialize server:", err)
+		logger.Error("Cannot initialize server", "error", err)
+		return
 	}
-	fmt.Println("Server initialized")
+	logger.Info("Server initialized")
 
-	fmt.Println("Running Server on address:", configEnv.ServerAddress)
+	logger.Info("Running server", "address", configEnv.ServerAddress)
 	err = server.RunServer(configEnv.ServerAddress)
-
 	if err != nil {
-		log.Fatal("Cannot run server:", err)
+		logger.Error("Could not run server", "error", err)
+		return
 	}
-
-	fmt.Println("Server is running on address:", configEnv.ServerAddress)
 }

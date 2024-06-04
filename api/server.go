@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	controller "routing/api/controllers"
 	"routing/api/routes"
@@ -15,19 +16,27 @@ type Server struct {
 
 func NewServer(store *db.Store) (*Server, error) {
 	// Initialize the controller
+	fmt.Println("Initializing controller...")
 	_controller := controller.NewController(store, gin.Default())
+
 	// Initialize the routes
+	fmt.Println("Initialized routes")
 	_routes := routes.NewRoutes(_controller)
 	// Initialize the server
 	server := &Server{_controller, _routes}
+
 	// Configure CORS settings
+	fmt.Println("Configuring CORS settings...")
 	server.Controller.ConfigCORSMiddleWare()
-	//gin.SetMode(gin.ReleaseMode)
+
 	// Construct the graph
+	fmt.Println("Constructing graph...")
 	err := server.ConstructGraph()
 	if err != nil {
 		return nil, err
 	}
+	// Set the routes
+	fmt.Println("Setting routes...")
 	server.SetRoutes()
 	return server, nil
 }
