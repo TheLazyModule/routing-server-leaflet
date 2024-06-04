@@ -7,13 +7,14 @@ RUN go build -o main .
 # Final stage
 FROM alpine:3.19
 WORKDIR /app
-# Copy built Go application and migrate tool from the builder stage
 COPY --from=builder /app/main /app/main
-#COPY public  /app/public
-COPY app.yaml /app/
-#COPY wait-for.sh  /app/
-#COPY startup.sh /app/
-#RUN chmod +x /app/wait-for.sh
+COPY config.env /app/
+COPY startup.sh /app/
 RUN chmod +x /app/main
+RUN chmod +x /app/startup.sh
 EXPOSE 8080
-ENTRYPOINT ["/app/main"]
+ENV ENV=production
+ENV PORT=8080
+ENV GIN_MODE=release
+CMD ["./main"]
+ENTRYPOINT ["./startup.sh"]
