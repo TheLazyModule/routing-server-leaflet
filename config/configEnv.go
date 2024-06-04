@@ -16,7 +16,7 @@ type Config struct {
 func LoadConfig(path string) (config Config, err error) {
 	envMode := os.Getenv("ENV")
 	if envMode == "" {
-		envMode = "development"
+		envMode = "production"
 	}
 
 	var envFileName string
