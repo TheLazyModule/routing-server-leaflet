@@ -30,19 +30,19 @@ func main() {
 		fmt.Println("Database Connected!")
 	}
 
-	acquire, err := conn.Acquire(context.Background())
-	fmt.Println("Acquiring connection to deallocate prepared statements...")
-	if err != nil {
-		log.Fatalf("Unable to acquire connection: %v\n", err)
-	}
-	defer acquire.Release()
-
-	fmt.Println("Deallocating all prepared statements...")
-	err = acquire.Conn().DeallocateAll(context.Background())
-	if err != nil {
-		log.Fatalf("Unable to deallocate prepared statements: %v\n", err)
-	}
-	fmt.Println("Deallocated all prepared statements!")
+	//acquire, err := conn.Acquire(context.Background())
+	//fmt.Println("Acquiring connection to deallocate prepared statements...")
+	//if err != nil {
+	//	log.Fatalf("Unable to acquire connection: %v\n", err)
+	//}
+	//defer acquire.Release()
+	//
+	//fmt.Println("Deallocating all prepared statements...")
+	//err = acquire.Conn().DeallocateAll(context.Background())
+	//if err != nil {
+	//	log.Fatalf("Unable to deallocate prepared statements: %v\n", err)
+	//}
+	//fmt.Println("Deallocated all prepared statements!")
 
 	fmt.Println("Creating new store...")
 	store := db.NewStore(conn)
