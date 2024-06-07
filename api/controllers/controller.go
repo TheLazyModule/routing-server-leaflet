@@ -19,7 +19,7 @@ func NewController(store *db.Store, router *gin.Engine) *Controller {
 
 func (c *Controller) ConfigCORSMiddleWare() {
 	c.Router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://routing-web.vercel.app/"}, // Add the origin of your React app
+		AllowOrigins:     []string{"http://localhost:5173", "https://routing-web.vercel.app/", "https://findmyclassroomknust.netlify.app/"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
