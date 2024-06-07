@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f03ffc5-0204-4bbd-839f-26c44eab6659" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/netlify.toml" beforeDir="false" afterPath="$PROJECT_DIR$/netlify.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +22,10 @@
   <component name="GOROOT" url="file:///usr/lib/go-1.22" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file:///media/denis/B872F78A72F74B9E/Users/USER/Documents/Don't Open Me/projects/GolandProjects/src/pkg/mod/github.com/gin-gonic/gin@v1.9.1/debug.go" root0="SKIP_INSPECTION" />
+    <setting file="file:///media/denis/B872F78A72F74B9E/Users/USER/Documents/Don't Open Me/projects/GolandProjects/src/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go" root0="SKIP_INSPECTION" />
   </component>
   <component name="InvalidFacetManager">
     <ignored-facets>
