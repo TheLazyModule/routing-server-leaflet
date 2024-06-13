@@ -7,24 +7,27 @@ package db
 
 import (
 	"context"
+
+	"github.com/twpayne/go-geom"
 )
 
 const fuzzyFindPlaceOrBuilding = `-- name: FuzzyFindPlaceOrBuilding :many
-WITH Combined AS (SELECT id, name
+WITH Combined AS (SELECT id, name, geom
                   FROM place
                   WHERE name ILIKE '%' || $1::text || '%'
 UNION
-SELECT id, name
+SELECT id, name, geom
 FROM building
 WHERE name ILIKE '%' || $1::text || '%'
 )
-SELECT id, name
+SELECT id, name, geom
 FROM Combined
 `
 
 type FuzzyFindPlaceOrBuildingRow struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID   int64      `json:"id"`
+	Name string     `json:"name"`
+	Geom geom.Point `json:"geom"`
 }
 
 func (q *Queries) FuzzyFindPlaceOrBuilding(ctx context.Context, text string) ([]FuzzyFindPlaceOrBuildingRow, error) {
@@ -36,7 +39,7 @@ func (q *Queries) FuzzyFindPlaceOrBuilding(ctx context.Context, text string) ([]
 	items := []FuzzyFindPlaceOrBuildingRow{}
 	for rows.Next() {
 		var i FuzzyFindPlaceOrBuildingRow
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.Geom); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
