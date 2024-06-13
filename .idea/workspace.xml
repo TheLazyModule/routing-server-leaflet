@@ -5,16 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f03ffc5-0204-4bbd-839f-26c44eab6659" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/298e61a4-b6a3-49bf-ba0b-85fa0398ff63.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/298e61a4-b6a3-49bf-ba0b-85fa0398ff63/storage_v2/_src_/database/postgres.edMnLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/298e61a4-b6a3-49bf-ba0b-85fa0398ff63/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/298e61a4-b6a3-49bf-ba0b-85fa0398ff63/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a9652006-9efa-4d07-ac6f-4d916176ddec.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/b7609124-87e7-4b18-b950-f6e24c93da6e.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b7609124-87e7-4b18-b950-f6e24c93da6e.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/controllers/generalController.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/generalController.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/query/all.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/query/all.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/sqlc/all.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sqlc/all.sql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/devconfig.env" beforeDir="false" afterPath="$PROJECT_DIR$/devconfig.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

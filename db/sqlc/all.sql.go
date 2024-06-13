@@ -7,27 +7,28 @@ package db
 
 import (
 	"context"
-
-	"github.com/twpayne/go-geom"
 )
 
 const fuzzyFindPlaceOrBuilding = `-- name: FuzzyFindPlaceOrBuilding :many
-WITH Combined AS (SELECT id, name, geom
-                  FROM place
-                  WHERE name ILIKE '%' || $1::text || '%'
+WITH Combined AS
+         (SELECT id, name, st_astext(geom) as geom
+          FROM place
+          WHERE name ILIKE '%' || $1::text || '%'
+
 UNION
-SELECT id, name, geom
+
+SELECT id, name, st_astext(st_centroid(geom)) as geom
 FROM building
 WHERE name ILIKE '%' || $1::text || '%'
 )
-SELECT id, name, geom
+SELECT id, name, geom as geom
 FROM Combined
 `
 
 type FuzzyFindPlaceOrBuildingRow struct {
-	ID   int64      `json:"id"`
-	Name string     `json:"name"`
-	Geom geom.Point `json:"geom"`
+	ID   int64       `json:"id"`
+	Name string      `json:"name"`
+	Geom interface{} `json:"geom"`
 }
 
 func (q *Queries) FuzzyFindPlaceOrBuilding(ctx context.Context, text string) ([]FuzzyFindPlaceOrBuildingRow, error) {
@@ -55,11 +56,11 @@ WITH Combined AS (SELECT name, st_astext(geom) as geom
                   FROM place
                   WHERE place.name = $1::text
 
-                  UNION
+UNION
 
-                  SELECT name, st_astext(st_centroid(geom)) as geom
-                  FROM building
-                  WHERE building.name = $1::text)
+SELECT name, st_astext(st_centroid(geom)) as geom
+FROM building
+WHERE building.name = $1::text)
 SELECT name, geom
 FROM Combined limit 1
 `

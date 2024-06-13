@@ -2,13 +2,13 @@ services:
   db:
     image: "${IMAGE}"
     environment:
-      POSTGRES_USER: "${PGUSER}"
-      POSTGRES_PASSWORD: "${PGPASSWORD}"
-      POSTGRES_DB: "${PGDATABASE}"
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "0269306032DbB"
+      POSTGRES_DB: "routing"
     ports:
-      - "${PG_PORT_MAPPING}"
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgis/postgis:15-3.4-alpine
 
   api:
     build:
@@ -25,8 +25,8 @@ services:
       - ./.env:/app/.env
     environment:
       - DATABASE_URL=postgresql://${PGUSER}:${PGPASSWORD}@db:5432/${PGDATABASE}?sslmode=disable
-    entrypoint: ["/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/start.sh"]
-    command: ["/app/main"]
+    entrypoint: [ "/app/wait-for.sh", "db:5432", "--timeout=400", "--", "/app/start.sh" ]
+    command: [ "/app/main" ]
 
 volumes:
   pgdata:

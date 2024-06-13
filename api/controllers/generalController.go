@@ -58,11 +58,13 @@ func (c *Controller) FuzzyFindBuildingOrPlace(ctx *gin.Context) {
 	var req db.SearchText
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
 	}
 	fmt.Println(req.Text)
 
 	result, err := c.store.FuzzyFindPlaceOrBuilding(ctx, req.Text)
 	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
 	ctx.JSON(http.StatusOK, result)
@@ -72,10 +74,12 @@ func (c *Controller) GetLocationByName(ctx *gin.Context) {
 	var req db.LocationRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
 	}
 	location, err := c.store.GetBuildingOrPlace(ctx, req.Name)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
 	}
 	ctx.JSON(http.StatusOK, location)
 }
