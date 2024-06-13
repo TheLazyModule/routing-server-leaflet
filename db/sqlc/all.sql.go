@@ -11,17 +11,20 @@ import (
 
 const fuzzyFindPlaceOrBuilding = `-- name: FuzzyFindPlaceOrBuilding :many
 WITH Combined AS
-         (SELECT id, name, st_astext(geom) as geom
+         (SELECT id, name, geom as geom
           FROM place
           WHERE name ILIKE '%' || $1::text || '%'
 
 UNION
 
-SELECT id, name, st_astext(st_centroid(geom)) as geom
+SELECT id, name, st_centroid(geom) as geom
 FROM building
 WHERE name ILIKE '%' || $1::text || '%'
 )
-SELECT id, name, geom as geom
+SELECT id,
+       name,
+       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom
+
 FROM Combined
 `
 
