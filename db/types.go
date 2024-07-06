@@ -30,14 +30,9 @@ type Edge struct {
 	Weight     float64
 }
 
-type PlacesResult struct {
-	Places []db.ListPlacesRow
+type CityResult struct {
+	Cities []db.ListCitiesRow
 	Err    error
-}
-
-type BuildingsResult struct {
-	Buildings []db.ListBuildingsRow
-	Err       error
 }
 
 type DijkstraResult struct {

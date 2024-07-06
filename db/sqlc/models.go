@@ -8,16 +8,10 @@ import (
 	"github.com/twpayne/go-geom"
 )
 
-type Building struct {
+type City struct {
 	ID   int64      `json:"id"`
 	Name string     `json:"name"`
 	Geom geom.Point `json:"geom"`
-}
-
-type Classroom struct {
-	ID         int64  `json:"id"`
-	BuildingID int64  `json:"building_id"`
-	RoomCode   string `json:"room_code"`
 }
 
 type Edge struct {
@@ -28,12 +22,6 @@ type Edge struct {
 }
 
 type Node struct {
-	ID   int64      `json:"id"`
-	Name string     `json:"name"`
-	Geom geom.Point `json:"geom"`
-}
-
-type Place struct {
 	ID   int64      `json:"id"`
 	Name string     `json:"name"`
 	Geom geom.Point `json:"geom"`

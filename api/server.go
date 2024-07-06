@@ -42,12 +42,9 @@ func NewServer(store *db.Store) (*Server, error) {
 }
 
 func (s *Server) SetRoutes() {
-	s.Routes.GeneralRoutes()
-	s.Routes.BuildingRoute()
-	s.Routes.PlaceRoute()
+	s.Routes.CityRoute()
 	s.Routes.NodeRoute()
 	s.Routes.EdgeRoute()
-	//s.Routes.ClassroomRoutes()
 }
 
 func (s *Server) ConstructGraph() error {

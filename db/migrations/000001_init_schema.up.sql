@@ -1,11 +1,11 @@
 CREATE
-    EXTENSION IF NOT EXISTS postgis;
+EXTENSION IF NOT EXISTS postgis;
 
 -- Create the 'node' table
 CREATE TABLE "node"
 (
     "id"   BIGSERIAL PRIMARY KEY,
-    "name" VARCHAR               NOT NULL UNIQUE,
+    "name" VARCHAR NOT NULL UNIQUE,
     "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
 );
 
@@ -22,30 +22,13 @@ CREATE TABLE "edge"
 );
 
 -- Create the 'place' table
-CREATE TABLE "place"
-(
-    "id"       BIGSERIAL PRIMARY KEY,
-    "name"     VARCHAR NOT NULL,
-    "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
-);
-
--- Create the 'building' table
-CREATE TABLE "building"
+CREATE TABLE city
 (
     "id"   BIGSERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
-    "geom" GEOMETRY(POLYGON, 3857) NOT NULL UNIQUE
+    "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
 );
 
--- Create the 'classroom' table
-CREATE TABLE "classroom"
-(
-    "id"          BIGSERIAL PRIMARY KEY,
-    "building_id" BIGINT  NOT NULL,
-    "room_code"   VARCHAR NOT NULL,
-    CONSTRAINT "fk_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
-    CONSTRAINT "classroom_unique_constraint" UNIQUE ("building_id", "room_code")
-);
 
 -- Create indexes for the 'node' table
 CREATE INDEX "idx_node_geom" ON "node" ("geom");
@@ -54,14 +37,6 @@ CREATE INDEX "idx_node_geom" ON "node" ("geom");
 CREATE INDEX "idx_edge_from_to" ON "edge" ("from_node_id", "to_node_id");
 CREATE INDEX "idx_edge_weight" ON "edge" ("weight");
 
--- Create indexes for the 'place' table
-CREATE INDEX "idx_place_name" ON "place" ("name");
-CREATE INDEX "idx_place_geom" ON "place" ("geom");
-
--- Create indexes for the 'building' table
-CREATE INDEX "idx_building_name" ON "building" ("name");
-CREATE INDEX "idx_building_geom" ON "building" ("geom");
-
--- Create indexes for the 'classroom' table
-CREATE INDEX "idx_classroom_building_id" ON "classroom" ("building_id");
-CREATE INDEX "idx_classroom_room_code" ON "classroom" ("room_code");
+-- Create indexes for the 'city' table
+CREATE INDEX "idx_city_name" ON city ("name");
+CREATE INDEX "idx_city_geom" ON city ("geom");

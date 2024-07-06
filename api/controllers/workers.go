@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+var UserLocation string = "My Location"
+
 func (c *Controller) getClosestNode(ctx context.Context, centroid interface{}, resultChan chan<- db.ClosestNodeResult) {
 	defer close(resultChan)
 	node, err := c.store.GetClosestPointToQueryLocation(ctx, centroid)
@@ -32,7 +34,6 @@ func (c *Controller) getClosestNodeByUserLocationGeom(ctx context.Context, centr
 
 func (c *Controller) calculateShortestPathWorker(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
 	defer close(resultChan)
-	fmt.Println("fromID-toID", fromID, toID)
 	paths, distance, err := config.Dijkstra(c.Graph, fromID, toID)
 	select {
 	case resultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}:
@@ -49,20 +50,11 @@ func (c *Controller) getNodesByIdsWorker(ctx context.Context, ids []int64, resul
 	}
 }
 
-func (c *Controller) getBuildingsWorker(ctx context.Context, buildingResult chan<- db.BuildingsResult) {
-	defer close(buildingResult)
-	building, err := c.store.ListBuildings(ctx)
-	select {
-	case buildingResult <- db.BuildingsResult{Buildings: building, Err: err}:
-	case <-ctx.Done():
-	}
-}
-
-func (c *Controller) getPlacesWorker(ctx context.Context, placesResult chan<- db.PlacesResult) {
+func (c *Controller) getCityWorker(ctx context.Context, placesResult chan<- db.CityResult) {
 	defer close(placesResult)
-	places, err := c.store.ListPlaces(ctx)
+	cities, err := c.store.ListCities(ctx)
 	select {
-	case placesResult <- db.PlacesResult{Places: places, Err: err}:
+	case placesResult <- db.CityResult{Cities: cities, Err: err}:
 	case <-ctx.Done():
 	}
 }
@@ -78,10 +70,10 @@ func (c *Controller) handlerBody(ctx *gin.Context, req db.RouteRequestData) {
 	closestNodeFromUserLocationChan := make(chan db.ClosestNodeToUserLocationResult, 1)
 
 	// Process the "From" location based on its type
-	if req.GetFrom() == "My Location" {
+	if req.GetFrom() == UserLocation {
 		go c.getClosestNodeByUserLocationGeom(pipelineCtx, req.GetFromLocation(), closestNodeFromUserLocationChan)
 	} else {
-		geomFrom, err := c.store.GetBuildingOrPlace(pipelineCtx, req.GetFrom())
+		geomFrom, err := c.store.GetCity(pipelineCtx, req.GetFrom())
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": utils.ErrorResponse(err)})
 			return
@@ -90,7 +82,7 @@ func (c *Controller) handlerBody(ctx *gin.Context, req db.RouteRequestData) {
 	}
 
 	// Retrieve the "To" location data
-	geomTo, err := c.store.GetBuildingOrPlace(pipelineCtx, req.GetTo())
+	geomTo, err := c.store.GetCity(pipelineCtx, req.GetTo())
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": utils.ErrorResponse(err)})
 		return
