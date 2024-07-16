@@ -68,7 +68,7 @@ func (c *Controller) GetShortestRouteByNodes(ctx *gin.Context) {
 	nodesChan := make(chan db.Nodes, 1)
 
 	// -->
-	//go c.calculateShortestPathWorker(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
+	go c.calculateShortestPathWorker(ctx, req.FromNodeID, req.ToNodeID, dijkstraResultChan)
 
 	dijkstraResult := <-dijkstraResultChan
 	if dijkstraResult.Err != nil {

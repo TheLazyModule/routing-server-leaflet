@@ -34,7 +34,7 @@ func (c *Controller) getClosestNodeByUserLocationGeom(ctx context.Context, centr
 
 func (c *Controller) calculateShortestPathWorker(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
 	defer close(resultChan)
-	paths, distance, err := config.Dijkstra(c.Graph, fromID, toID)
+	paths, distance, err := config.BidirectionalDijkstra(c.Graph, fromID, toID)
 	select {
 	case resultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}:
 	case <-ctx.Done():
@@ -89,7 +89,7 @@ func (c *Controller) handlerBody(ctx *gin.Context, req db.RouteRequestData) {
 	}
 	closestNodeToChan := make(chan db.ClosestNodeResult, 1)
 	go c.getClosestNode(pipelineCtx, geomTo.Geom, closestNodeToChan)
-	fmt.Println(geomTo)
+	fmt.Println("geomTo", geomTo)
 
 	// Handle the request with a timeout
 	timeout := 10 * time.Second

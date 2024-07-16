@@ -1,5 +1,5 @@
 # Default .env file
-ENV_FILE := config.env
+ENV_FILE := devconfig.env
 
 # Check for MODE and set the appropriate .env file
 ifeq ($(ENV),development)

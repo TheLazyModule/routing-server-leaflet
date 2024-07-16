@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"routing/api/utils"
@@ -24,7 +23,6 @@ func (c *Controller) ServerActive(ctx *gin.Context) {
 func (c *Controller) GetShortestRouteByCity(ctx *gin.Context) {
 	var req db.RouteRequest
 	err := ctx.ShouldBind(&req)
-	fmt.Println(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
