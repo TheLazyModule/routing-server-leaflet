@@ -33,7 +33,7 @@ func (c *Controller) getClosestNodeByUserLocationGeom(ctx context.Context, centr
 func (c *Controller) calculateShortestPathWorker(ctx context.Context, fromID, toID int64, resultChan chan<- db.DijkstraResult) {
 	defer close(resultChan)
 	fmt.Println("fromID-toID", fromID, toID)
-	paths, distance, err := config.Dijkstra(c.Graph, fromID, toID)
+	paths, distance, err := config.BidirectionalDijkstra(c.Graph, fromID, toID)
 	select {
 	case resultChan <- db.DijkstraResult{Paths: paths, Distance: distance, Err: err}:
 	case <-ctx.Done():
