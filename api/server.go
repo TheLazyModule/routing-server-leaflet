@@ -27,7 +27,7 @@ func NewServer(store *db.Store) (*Server, error) {
 
 	// Configure CORS settings
 	fmt.Println("Configuring CORS settings...")
-	//server.Controller.ConfigCORSMiddleWare()
+	server.Controller.ConfigCORSMiddleWare()
 
 	// Construct the graph
 	fmt.Println("Constructing graph...")
