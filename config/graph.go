@@ -20,6 +20,7 @@ type Node struct {
 	x, y  float64
 }
 
+// Graph implementation
 type Graph struct {
 	Edges   map[int64]db.Neighbours
 	Weights map[db.Edge]float64

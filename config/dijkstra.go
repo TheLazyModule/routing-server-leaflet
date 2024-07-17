@@ -1,6 +1,7 @@
 package config
 
 import (
+	"container/heap"
 	"fmt"
 	"math"
 	"routing/db"
@@ -9,8 +10,88 @@ import (
 )
 
 type PreviousNodeAndWeight struct {
-	prevNode int64 // Adjusted to int64 to match node IDs
+	prevNode int64
 	weight   float64
+}
+
+func BidirectionalDijkstra(graph *Graph, initial, end int64) ([]int64, float64, error) {
+	startTime := time.Now()
+
+	var shortestPathsMu sync.Mutex
+	forwardPaths := make(map[int64]PreviousNodeAndWeight)
+	backwardPaths := make(map[int64]PreviousNodeAndWeight)
+	forwardPaths[initial] = PreviousNodeAndWeight{prevNode: -1, weight: 0}
+	backwardPaths[end] = PreviousNodeAndWeight{prevNode: -1, weight: 0}
+	visitedForward := make(map[int64]bool)
+	visitedBackward := make(map[int64]bool)
+	forwardQueue := &PriorityQueue{}
+	backwardQueue := &PriorityQueue{}
+	heap.Init(forwardQueue)
+	heap.Init(backwardQueue)
+	heap.Push(forwardQueue, &Item{value: initial, priority: 0})
+	heap.Push(backwardQueue, &Item{value: end, priority: 0})
+	bestPath := int64(-1)
+	bestWeight := math.Inf(1)
+
+	visitNode := func(queue *PriorityQueue, paths, otherPaths map[int64]PreviousNodeAndWeight, visited map[int64]bool) {
+		if queue.Len() == 0 {
+			return
+		}
+
+		item := heap.Pop(queue).(*Item)
+		currentNode := item.value
+		currentWeight := item.priority
+
+		if visited[currentNode] {
+			return
+		}
+		visited[currentNode] = true
+
+		if otherPath, exists := otherPaths[currentNode]; exists {
+			pathWeight := currentWeight + otherPath.weight
+			if pathWeight < bestWeight {
+				bestWeight = pathWeight
+				bestPath = currentNode
+			}
+		}
+
+		destinations := graph.GetEdges()[currentNode]
+		for _, nextNode := range destinations {
+			weight := graph.GetWeights()[db.Edge{FromNodeID: currentNode, ToNodeID: nextNode}] + currentWeight
+			shortestPathsMu.Lock()
+			if nextWeight, ok := paths[nextNode]; !ok || weight < nextWeight.weight {
+				paths[nextNode] = PreviousNodeAndWeight{prevNode: currentNode, weight: weight}
+				heap.Push(queue, &Item{value: nextNode, priority: weight})
+			}
+			shortestPathsMu.Unlock()
+		}
+	}
+
+	for forwardQueue.Len() > 0 && backwardQueue.Len() > 0 {
+		visitNode(forwardQueue, forwardPaths, backwardPaths, visitedForward)
+		visitNode(backwardQueue, backwardPaths, forwardPaths, visitedBackward)
+		if bestPath != -1 {
+			break
+		}
+	}
+
+	if bestPath == -1 {
+		return nil, 0, fmt.Errorf("route not possible")
+	}
+
+	// Reconstruct the path
+	var path []int64
+	for curr := bestPath; curr != -1; curr = forwardPaths[curr].prevNode {
+		path = append([]int64{curr}, path...)
+	}
+	for curr := backwardPaths[bestPath].prevNode; curr != -1; curr = backwardPaths[curr].prevNode {
+		path = append(path, curr)
+	}
+
+	timeElapsed := time.Since(startTime)
+	fmt.Printf("Bidirectional Dijkstra took %s\n", timeElapsed)
+
+	return path, bestWeight, nil
 }
 
 // Dijkstra finds the shortest path from initial to end node and returns the path as node IDs.
