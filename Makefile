@@ -15,7 +15,7 @@ else
 endif
 
 up:
-	docker compose up
+	docker compose up -d
 
 down:
 	docker compose down -v
@@ -39,14 +39,20 @@ createdb:
 dropdb:
 	 docker exec -it $(PG_CONTAINER_NAME) dropdb $(PGDATABASE) -f --username=$(PGUSER)
 
-migrate:
-	cd ./geojson-graph/ && python3 main.py && cd ..
-
 migrate_up:
 	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose up
 
 migrate_down:
 	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose down
+
+migrate_up_1:
+	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose up 1
+
+migrate_up_2:
+	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose up 2
+
+migrate_down_1:
+	migrate -path ./db/migrations -database "$(DATABASE_URL)" -verbose down 1
 
 restart_db:
 	$(MAKE) migrate_down
@@ -54,12 +60,6 @@ restart_db:
 
 docker_build:
 	docker build -t routing-app:latest .
-
-
-shuv:
-	git add .
-	git commit -a
-	git push
 
 generate:
 	sqlc generate
