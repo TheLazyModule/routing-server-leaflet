@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="postgres@localhost">
-  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.52">
+  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1"/>
     <database id="2" parent="1" name="angela">
       <ObjectId>68831</ObjectId>
@@ -6847,28 +6847,28 @@
       <OwnerName>postgres</OwnerName>
     </table>
     <column id="517" parent="515" name="index_number">
-      <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>328459</StateNumber>
+      <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
     <column id="518" parent="515" name="first_name">
-      <DasType>varchar|0s</DasType>
       <Position>2</Position>
       <StateNumber>328459</StateNumber>
+      <StoredType>varchar|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="519" parent="515" name="last_name">
-      <DasType>varchar|0s</DasType>
       <Position>3</Position>
       <StateNumber>328459</StateNumber>
+      <StoredType>varchar|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="520" parent="515" name="marks">
-      <DasType>real|0s</DasType>
       <Position>4</Position>
       <StateNumber>328459</StateNumber>
+      <StoredType>real|0s</StoredType>
       <TypeId>700</TypeId>
     </column>
     <index id="521" parent="515" name="cad_pkey">
@@ -6888,28 +6888,28 @@
       <UnderlyingIndexId>191836</UnderlyingIndexId>
     </key>
     <column id="523" parent="516" name="index_number">
-      <DasType>integer|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>328458</StateNumber>
+      <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
     <column id="524" parent="516" name="first_name">
-      <DasType>varchar|0s</DasType>
       <Position>2</Position>
       <StateNumber>328458</StateNumber>
+      <StoredType>varchar|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="525" parent="516" name="last_name">
-      <DasType>varchar|0s</DasType>
       <Position>3</Position>
       <StateNumber>328458</StateNumber>
+      <StoredType>varchar|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="526" parent="516" name="marks">
-      <DasType>real|0s</DasType>
       <Position>4</Position>
       <StateNumber>328458</StateNumber>
+      <StoredType>real|0s</StoredType>
       <TypeId>700</TypeId>
     </column>
     <index id="527" parent="516" name="gis_pkey">
