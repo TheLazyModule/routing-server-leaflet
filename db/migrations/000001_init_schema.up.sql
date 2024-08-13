@@ -1,11 +1,17 @@
-CREATE
-    EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+-- Create the 'category' table
+CREATE TABLE "category"
+(
+    "id"   BIGSERIAL PRIMARY KEY,
+    "name" VARCHAR NOT NULL UNIQUE
+);
 
 -- Create the 'node' table
 CREATE TABLE "node"
 (
     "id"   BIGSERIAL PRIMARY KEY,
-    "name" VARCHAR               NOT NULL UNIQUE,
+    "name" VARCHAR NOT NULL UNIQUE,
     "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
 );
 
@@ -16,25 +22,29 @@ CREATE TABLE "edge"
     "from_node_id" BIGINT           NOT NULL,
     "to_node_id"   BIGINT           NOT NULL,
     "weight"       DOUBLE PRECISION NOT NULL,
-    CONSTRAINT "fk_from_node_id" FOREIGN KEY ("from_node_id") REFERENCES "node" ("id"),
-    CONSTRAINT "fk_to_node_id" FOREIGN KEY ("to_node_id") REFERENCES "node" ("id"),
+    CONSTRAINT "fk_edge_from_node_id" FOREIGN KEY ("from_node_id") REFERENCES "node" ("id"),
+    CONSTRAINT "fk_edge_to_node_id" FOREIGN KEY ("to_node_id") REFERENCES "node" ("id"),
     CONSTRAINT "edge_unique_constraint" UNIQUE ("from_node_id", "to_node_id")
 );
 
 -- Create the 'place' table
 CREATE TABLE "place"
 (
-    "id"       BIGSERIAL PRIMARY KEY,
-    "name"     VARCHAR NOT NULL,
-    "geom" GEOMETRY(POINT, 3857) NOT NULL UNIQUE
+    "id"          BIGSERIAL PRIMARY KEY,
+    "name"        VARCHAR NOT NULL,
+    "geom"        GEOMETRY(POINT, 3857) NOT NULL UNIQUE,
+    "category_id" INT,
+    CONSTRAINT "fk_place_category_id" FOREIGN KEY ("category_id") REFERENCES "category" ("id")
 );
 
 -- Create the 'building' table
 CREATE TABLE "building"
 (
-    "id"   BIGSERIAL PRIMARY KEY,
-    "name" VARCHAR NOT NULL,
-    "geom" GEOMETRY(POLYGON, 3857) NOT NULL UNIQUE
+    "id"          BIGSERIAL PRIMARY KEY,
+    "name"        VARCHAR NOT NULL,
+    "geom"        GEOMETRY(POLYGON, 3857) NOT NULL UNIQUE,
+    "category_id" INT,
+    CONSTRAINT "fk_building_category_id" FOREIGN KEY ("category_id") REFERENCES "category" ("id")
 );
 
 -- Create the 'classroom' table
@@ -43,7 +53,9 @@ CREATE TABLE "classroom"
     "id"          BIGSERIAL PRIMARY KEY,
     "building_id" BIGINT  NOT NULL,
     "room_code"   VARCHAR NOT NULL,
-    CONSTRAINT "fk_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
+    "category_id" INT,
+    CONSTRAINT "fk_classroom_category_id" FOREIGN KEY ("category_id") REFERENCES "category" ("id"),
+    CONSTRAINT "fk_classroom_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
     CONSTRAINT "classroom_unique_constraint" UNIQUE ("building_id", "room_code")
 );
 

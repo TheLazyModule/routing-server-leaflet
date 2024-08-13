@@ -1,13 +1,18 @@
 -- name: ListBuildings :many
 SELECT name,
-       ST_ASTEXT(geom)                     as geom,
-       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
+       ST_ASTEXT(st_centroid(geom))        as geom,
+       ST_ASTEXT(st_centroid( ST_TRANSFORM(geom, 4326) )) as geom_geographic,
+       image_urls                          as image_urls
 from building
 order by id;
 
--- name: GetBuildingNames :many
-SELECT name
-from building;
+-- name: GetBuildingByID :one
+SELECT name,
+       ST_ASTEXT(st_centroid(geom))        as geom,
+       ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic,
+       image_urls                          as image_urls
+from building
+where id = $1;
 
 -- name: GetBuildingCentroidGeom :one
 SELECT ST_ASTEXT(ST_CENTROID(geom))                     as building_centroid,

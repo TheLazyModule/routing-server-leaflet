@@ -15,11 +15,11 @@ func (c *Controller) ServerActive(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Server is up and Running"})
 }
 
-func (c *Controller) GetPlacesAndBuildings(ctx *gin.Context) {
+func (c *Controller) GetAllEntities(ctx *gin.Context) {
 	pipelineCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// Get places and buildings asynchronously.
+	// Get places, classrooms and buildings asynchronously.
 	placesChan := make(chan db.PlacesResult, 1)
 	// -->
 	go c.getPlacesWorker(pipelineCtx, placesChan)
@@ -27,6 +27,10 @@ func (c *Controller) GetPlacesAndBuildings(ctx *gin.Context) {
 	buildingsChan := make(chan db.BuildingsResult, 1)
 	// -->
 	go c.getBuildingsWorker(pipelineCtx, buildingsChan)
+
+	classroomsChan := make(chan db.ClassroomsResult, 1)
+	// -->
+	go c.getClassroomsWorker(pipelineCtx, classroomsChan)
 
 	placesResult := <-placesChan
 	if err := placesResult.Err; err != nil {
@@ -40,13 +44,19 @@ func (c *Controller) GetPlacesAndBuildings(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"places": placesResult.Places, "buildings": buildingsResult.Buildings})
+	classroomsResult := <-classroomsChan
+	if err := classroomsResult.Err; err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"places": placesResult.Places, "buildings": buildingsResult.Buildings, "classrooms": classroomsResult.Classrooms})
 }
 
 func (c *Controller) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 	var req db.RouteRequest
 	err := ctx.ShouldBind(&req)
-	fmt.Println(req)
+	fmt.Printf("Route Request body ==> %s", req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
@@ -54,32 +64,19 @@ func (c *Controller) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 	c.handlerBody(ctx, &req)
 }
 
-func (c *Controller) FuzzyFindBuildingOrPlace(ctx *gin.Context) {
+func (c *Controller) FuzzyFindBuildingOrPlaceClassroom(ctx *gin.Context) {
 	var req db.SearchText
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
-	fmt.Println(req.Text)
-
-	result, err := c.store.FuzzyFindPlaceOrBuilding(ctx, req.Text)
+	fmt.Println("Search Request ==> ", req.Text)
+	result, err := c.store.FuzzyFindPlaceBuildingClassroom(ctx, req.Text)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
 		return
 	}
+	//fmt.Printf("Location Search Request ==> %v", result)
+
 	ctx.JSON(http.StatusOK, result)
-}
-
-func (c *Controller) GetLocationByName(ctx *gin.Context) {
-	var req db.LocationRequest
-	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-	location, err := c.store.GetBuildingOrPlace(ctx, req.Name)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
-		return
-	}
-	ctx.JSON(http.StatusOK, location)
 }

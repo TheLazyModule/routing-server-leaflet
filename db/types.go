@@ -35,6 +35,11 @@ type PlacesResult struct {
 	Err    error
 }
 
+type ClassroomsResult struct {
+	Classrooms []db.ListClassroomsRow
+	Err        error
+}
+
 type BuildingsResult struct {
 	Buildings []db.ListBuildingsRow
 	Err       error
