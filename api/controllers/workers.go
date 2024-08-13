@@ -67,6 +67,15 @@ func (c *Controller) getPlacesWorker(ctx context.Context, placesResult chan<- db
 	}
 }
 
+func (c *Controller) getClassroomsWorker(ctx context.Context, classroomsResult chan<- db.ClassroomsResult) {
+	defer close(classroomsResult)
+	classrooms, err := c.store.ListClassrooms(ctx)
+	select {
+	case classroomsResult <- db.ClassroomsResult{Classrooms: classrooms, Err: err}:
+	case <-ctx.Done():
+	}
+}
+
 // Handler for processing route requests
 func (c *Controller) handlerBody(ctx *gin.Context, req db.RouteRequestData) {
 	// Create a cancellable context for the pipeline
