@@ -38,7 +38,7 @@ from classroom
 `
 
 type ListClassroomsRow struct {
-	RoomCode    string      `json:"room_code"`
+	RoomCode    pgtype.Text `json:"room_code"`
 	Name        pgtype.Text `json:"name"`
 	Description pgtype.Text `json:"description"`
 	CategoryID  pgtype.Int4 `json:"category_id"`

@@ -25,7 +25,7 @@ type Category struct {
 type Classroom struct {
 	ID          int64       `json:"id"`
 	BuildingID  int64       `json:"building_id"`
-	RoomCode    string      `json:"room_code"`
+	RoomCode    pgtype.Text `json:"room_code"`
 	CategoryID  pgtype.Int4 `json:"category_id"`
 	Name        pgtype.Text `json:"name"`
 	Description pgtype.Text `json:"description"`

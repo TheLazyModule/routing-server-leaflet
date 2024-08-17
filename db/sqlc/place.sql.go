@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getPlace = `-- name: GetPlace :one
@@ -50,17 +52,19 @@ func (q *Queries) GetPlaceGeom(ctx context.Context, name string) (GetPlaceGeomRo
 }
 
 const listPlaces = `-- name: ListPlaces :many
-SELECT name
-     , ST_ASTEXT(geom)                     as geom
-     , ST_ASTEXT(ST_TRANSFORM(geom, 4326)) as geom_geographic
+SELECT name,
+       ST_X(ST_TRANSFORM(geom, 4326)) as longitude,
+       ST_Y(ST_TRANSFORM(geom, 4326)) as latitude,
+       category_id
 from place
 order by id
 `
 
 type ListPlacesRow struct {
-	Name           string      `json:"name"`
-	Geom           interface{} `json:"geom"`
-	GeomGeographic interface{} `json:"geom_geographic"`
+	Name       string      `json:"name"`
+	Longitude  interface{} `json:"longitude"`
+	Latitude   interface{} `json:"latitude"`
+	CategoryID pgtype.Int4 `json:"category_id"`
 }
 
 func (q *Queries) ListPlaces(ctx context.Context) ([]ListPlacesRow, error) {
@@ -72,7 +76,12 @@ func (q *Queries) ListPlaces(ctx context.Context) ([]ListPlacesRow, error) {
 	items := []ListPlacesRow{}
 	for rows.Next() {
 		var i ListPlacesRow
-		if err := rows.Scan(&i.Name, &i.Geom, &i.GeomGeographic); err != nil {
+		if err := rows.Scan(
+			&i.Name,
+			&i.Longitude,
+			&i.Latitude,
+			&i.CategoryID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

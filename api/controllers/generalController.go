@@ -20,16 +20,19 @@ func (c *Controller) GetAllEntities(ctx *gin.Context) {
 	defer cancel()
 
 	// Get places, classrooms and buildings asynchronously.
+	fmt.Println("Getting places")
 	placesChan := make(chan db.PlacesResult, 1)
 	// -->
 	go c.getPlacesWorker(pipelineCtx, placesChan)
 
+	fmt.Println("Getting buildings")
 	buildingsChan := make(chan db.BuildingsResult, 1)
 	// -->
 	go c.getBuildingsWorker(pipelineCtx, buildingsChan)
 
 	classroomsChan := make(chan db.ClassroomsResult, 1)
 	// -->
+	fmt.Println("Getting classrooms")
 	go c.getClassroomsWorker(pipelineCtx, classroomsChan)
 
 	placesResult := <-placesChan
@@ -67,7 +70,7 @@ func (c *Controller) GetShortestRouteByBuildingOrPlace(ctx *gin.Context) {
 func (c *Controller) FuzzyFindBuildingOrPlaceClassroom(ctx *gin.Context) {
 	var req db.SearchText
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(err))
 		return
 	}
 	fmt.Println("Search Request ==> ", req.Text)

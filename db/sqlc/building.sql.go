@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getBuildingByID = `-- name: GetBuildingByID :one
@@ -58,18 +60,20 @@ func (q *Queries) GetBuildingCentroidGeom(ctx context.Context, name string) (Get
 
 const listBuildings = `-- name: ListBuildings :many
 SELECT name,
-       ST_ASTEXT(st_centroid(geom))        as geom,
-       ST_ASTEXT(st_centroid( ST_TRANSFORM(geom, 4326) )) as geom_geographic,
-       image_urls                          as image_urls
+       ST_X(st_centroid(ST_TRANSFORM(geom, 4326))) as longitude,
+       ST_Y(st_centroid(ST_TRANSFORM(geom, 4326))) as latitude,
+       image_urls                                  as image_urls,
+       category_id
 from building
 order by id
 `
 
 type ListBuildingsRow struct {
-	Name           string      `json:"name"`
-	Geom           interface{} `json:"geom"`
-	GeomGeographic interface{} `json:"geom_geographic"`
-	ImageUrls      []string    `json:"image_urls"`
+	Name       string      `json:"name"`
+	Longitude  interface{} `json:"longitude"`
+	Latitude   interface{} `json:"latitude"`
+	ImageUrls  []string    `json:"image_urls"`
+	CategoryID pgtype.Int4 `json:"category_id"`
 }
 
 func (q *Queries) ListBuildings(ctx context.Context) ([]ListBuildingsRow, error) {
@@ -83,9 +87,10 @@ func (q *Queries) ListBuildings(ctx context.Context) ([]ListBuildingsRow, error)
 		var i ListBuildingsRow
 		if err := rows.Scan(
 			&i.Name,
-			&i.Geom,
-			&i.GeomGeographic,
+			&i.Longitude,
+			&i.Latitude,
 			&i.ImageUrls,
+			&i.CategoryID,
 		); err != nil {
 			return nil, err
 		}

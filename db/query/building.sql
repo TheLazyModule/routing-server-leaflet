@@ -1,8 +1,9 @@
 -- name: ListBuildings :many
 SELECT name,
-       ST_ASTEXT(st_centroid(geom))        as geom,
-       ST_ASTEXT(st_centroid( ST_TRANSFORM(geom, 4326) )) as geom_geographic,
-       image_urls                          as image_urls
+       ST_X(st_centroid(ST_TRANSFORM(geom, 4326))) as longitude,
+       ST_Y(st_centroid(ST_TRANSFORM(geom, 4326))) as latitude,
+       image_urls                                  as image_urls,
+       category_id
 from building
 order by id;
 

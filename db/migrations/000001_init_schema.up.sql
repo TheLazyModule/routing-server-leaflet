@@ -52,7 +52,7 @@ CREATE TABLE "classroom"
 (
     "id"          BIGSERIAL PRIMARY KEY,
     "building_id" BIGINT  NOT NULL,
-    "room_code"   VARCHAR NOT NULL,
+    "room_code"   VARCHAR,
     "category_id" INT,
     CONSTRAINT "fk_classroom_category_id" FOREIGN KEY ("category_id") REFERENCES "category" ("id"),
     CONSTRAINT "fk_classroom_building_id" FOREIGN KEY ("building_id") REFERENCES "building" ("id"),
